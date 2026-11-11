@@ -1,0 +1,1516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>App-Initiated Pre-Check-In, Live — MyDigiRecords</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<style>
+:root{--navy:#1F3A5F;--teal:#2A7F87;--teal-deep:#1F6068;--paper:#F6F8F9;--card:#fff;--line:#DCE4E8;--ink:#232E36;--ink-soft:#5B6A73;--amber:#9A6414;--amber-bg:#FBF3E2;--amber-line:#E6C989;--green:#2A6E49;--green-bg:#E7F3EC;--green-line:#AFD9C1;--red:#9A3131;--red-bg:#FBECEC;--blue-bg:#E8F0F8;--blue-line:#B9CFE6;--code-bg:#10202A;--code-ink:#DCEBEF;--code-key:#8FC4E8;--code-str:#E8C98B;--code-acc:#7FD8CB;--sans:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;--r:10px}
+@media (prefers-color-scheme:dark){:root{--navy:#9FC1E8;--teal:#63C2CB;--teal-deep:#8FDDE4;--paper:#131B20;--card:#1B252B;--line:#2C3940;--ink:#E7EEF1;--ink-soft:#9FB0B8;--amber:#E3B15E;--amber-bg:#2C2313;--amber-line:#513E1B;--green:#7FCBA0;--green-bg:#16281F;--green-line:#2C4E3A;--red:#E39898;--red-bg:#2C1717;--blue-bg:#17222E;--blue-line:#2C4258;--code-bg:#0A1318}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.55}
+a{color:var(--teal)}code,pre,.mono{font-family:var(--mono)}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 20px 80px}
+header.hero{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:26px}
+.brand{display:flex;align-items:center;gap:12px;color:var(--ink-soft);font-weight:600;letter-spacing:.02em;text-transform:uppercase;font-size:12px}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--teal)}
+h1{font-size:30px;line-height:1.2;margin:10px 0 6px;color:var(--navy)}
+.lede{font-size:17px;color:var(--ink-soft);max-width:820px;margin:0 0 16px}
+.legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:500;background:var(--card)}
+.pill.verified{border-color:var(--green-line);background:var(--green-bg);color:var(--green)}
+.pill.proposed{border-color:var(--amber-line);background:var(--amber-bg);color:var(--amber)}
+.pill.sim{border-color:var(--blue-line);background:var(--blue-bg);color:var(--navy)}
+.steps{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0 0;padding:0;list-style:none}
+.steps li{font-size:12.5px;padding:4px 10px;border-radius:6px;border:1px solid var(--line);color:var(--ink-soft);background:var(--card)}
+.steps li.done{border-color:var(--green-line);color:var(--green)}
+.steps li.current{border-color:var(--teal);color:var(--teal);font-weight:600}
+section.step{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px;margin:0 0 18px;position:relative}
+section.step.locked{opacity:.55}
+section.step.locked .body{display:none}
+.stephead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.num{font-family:var(--mono);font-weight:600;color:var(--teal);font-size:13px}
+h2{font-size:20px;margin:0;color:var(--navy)}
+.sub{color:var(--ink-soft);margin:6px 0 14px;max-width:860px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+.panel{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--paper)}
+.panel h4{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft)}
+button{font-family:var(--sans);font-size:14px;border-radius:7px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 14px;cursor:pointer}
+button.primary{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}
+button.primary:hover{background:var(--teal-deep)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.choice{display:flex;gap:10px;flex-wrap:wrap}
+.choice label{border:1px solid var(--line);border-radius:8px;padding:10px 14px;cursor:pointer;background:var(--card);display:flex;gap:8px;align-items:flex-start;min-width:200px;flex:1}
+.choice label.on{border-color:var(--teal);box-shadow:0 0 0 2px rgba(42,127,135,.18)}
+.choice input{margin-top:4px}
+.choice small{display:block;color:var(--ink-soft);font-size:12.5px}
+pre.art{background:var(--code-bg);color:var(--code-ink);border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.5;overflow:auto;max-height:360px;margin:8px 0 0;white-space:pre-wrap;word-break:break-all}
+pre.art .k{color:var(--code-key)}pre.art .s{color:var(--code-str)}pre.art .c{color:var(--code-acc)}pre.art .cm{color:#7f95a3;font-style:italic}
+details.code{margin-top:12px;border-top:1px dashed var(--line);padding-top:8px}
+details.code summary{cursor:pointer;color:var(--teal);font-weight:600;font-size:13.5px}
+details.code pre{max-height:520px}
+.note{border-left:3px solid var(--amber-line);background:var(--amber-bg);color:var(--ink);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0;font-size:14px}
+.note.ok{border-left-color:var(--green-line);background:var(--green-bg)}
+.note.info{border-left-color:var(--blue-line);background:var(--blue-bg)}
+.tag{display:inline-block;font-size:11px;font-weight:600;border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.tag.must{background:var(--green-bg);color:var(--green);border:1px solid var(--green-line)}
+.tag.should{background:var(--blue-bg);color:var(--navy);border:1px solid var(--blue-line)}
+.tag.prop{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-line)}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft)}
+.phone{border:1px solid var(--line);border-radius:22px;padding:16px;background:var(--card);max-width:360px;margin:0 auto}
+.phone .bar{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-soft);margin-bottom:10px}
+.qrbox{display:flex;justify-content:center;padding:10px;background:#fff;border-radius:12px}
+.timeline{display:flex;gap:0;margin:8px 0;align-items:center;flex-wrap:wrap}
+.timeline .st{padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:13px;color:var(--ink-soft);background:var(--card)}
+.timeline .st.on{border-color:var(--green-line);background:var(--green-bg);color:var(--green);font-weight:600}
+.timeline .arr{padding:0 8px;color:var(--ink-soft)}
+.form .q{margin:0 0 10px}.form .q label{display:block;font-weight:500;font-size:14px;margin-bottom:3px}
+.form input[type=text],.form input[type=number],.form input[type=date],.form select{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--ink);font-family:var(--sans);font-size:14px}
+.kv{display:grid;grid-template-columns:max-content 1fr;gap:4px 14px;font-size:14px}.kv b{font-weight:500;color:var(--ink-soft)}
+.srcs li{margin-bottom:6px;font-size:14px}
+footer{color:var(--ink-soft);font-size:13.5px;margin-top:30px;border-top:1px solid var(--line);padding-top:18px}
+.count{font-family:var(--mono);font-weight:600}
+.ok-ic{color:var(--green);font-weight:700}.bad-ic{color:var(--red);font-weight:700}
+.small{font-size:13px;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="brand"><span class="dot"></span> MyDigiRecords · Kill the Clipboard · app-initiated flow</div>
+  <h1>App-Initiated Pre-Check-In, Live</h1>
+  <p class="lede">The patient's app starts the check-in, packages what the practice needs, and either hands it over as a QR code at the desk or pushes it straight into the EHR before the visit. Every protocol artifact below is produced on this page as you go, with the code that made it. Nothing is a picture of a JSON file.</p>
+  <div class="legend">
+    <span class="pill verified">● Published spec, verified against the text</span>
+    <span class="pill proposed">● MDR proposal, not in any published IG</span>
+    <span class="pill sim">● Simulated on this page (no backend)</span>
+  </div>
+  <div class="legend" style="margin-top:8px">
+    <span class="pill">KTC guide v0.10.2, Draft for July 2026</span>
+    <span class="pill">SMART Health Links, SHC&amp;L IG 1.0.0 STU 1</span>
+    <span class="pill">US Core 9.0.0 QuestionnaireResponse</span>
+    <span class="pill">SMART App Launch, Backend Services</span>
+  </div>
+  <ol class="steps" id="stepnav"></ol>
+</header>
+
+<!-- 1 -->
+<section class="step" id="s1">
+  <div class="stephead"><span class="num">STEP 1</span><h2>Identity verification at IAL2</h2><span class="pill sim">ID.me simulated</span></div>
+  <p class="sub">Before anything can be shared with a hospital, the patient proves who they are once, at NIST IAL2, through a credential service provider. The app stores the result and reuses it for every pre-check-in. On this page the ID.me round trip is simulated; the record it produces is the real shape the app keeps.</p>
+  <div class="body">
+  <div class="grid">
+    <div>
+      <div class="phone"><div class="bar"><span>9:41</span><span>MyDigiRecords</span></div>
+        <div class="kv"><b>Patient</b><span>Jordan Alvarez</span><b>Date of birth</b><span>1979-03-14</span><b>Identity</b><span id="idv-status">Not yet verified</span></div>
+        <div class="btn-row"><button class="primary" id="btn-idv">Verify with ID.me (simulated)</button></div>
+      </div>
+      <div class="note" style="margin-top:14px"><b>Where the standards stand.</b> The HL7 Interoperable Digital Identity and Patient Matching IG v2.0.0 describes IAL levels but states that they are not currently in any code system or value set in that guide. So there is no published FHIR element to say "this patient was verified at IAL2." Step 6 shows how we carry it anyway, labeled as a proposal.</div>
+    </div>
+    <div class="panel"><h4>Artifact: identity verification record (kept by the app)</h4><pre class="art" id="art-idv">// appears after verification</pre></div>
+  </div>
+  <details class="code"><summary>Show the code</summary><pre class="art" data-code="idvRecord"></pre></details>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="step locked" id="s2">
+  <div class="stephead"><span class="num">STEP 2</span><h2>Find the visit: connected EHR, or the phone's own calendar</h2></div>
+  <p class="sub">A practice is either one the app is already integrated with, in which case the app reads the appointment from the EHR's FHIR API, or it is not, in which case the app looks at the visits the patient already put in their phone calendar and confirms with them, or lets them type it in. The patient is never asked which protocol the practice speaks.</p>
+  <div class="body">
+  <div class="choice" id="visit-mode">
+    <label class="on"><input type="radio" name="vm" value="connected" checked><span><b>Connected hospital</b><small>Read the Appointment from an EHR the app is integrated with</small></span></label>
+    <label><input type="radio" name="vm" value="calendar"><span><b>Not connected</b><small>Scan the phone calendar for upcoming visits, confirm, or enter by hand</small></span></label>
+  </div>
+  <div class="grid" style="margin-top:14px">
+    <div>
+      <div id="vm-connected">
+        <div class="form"><div class="q"><label>Which EHR holds this appointment? <span class="small">(integrations the app has; sample data)</span></label>
+          <select id="ehr-pick"><option value="Epic">Epic</option><option value="Oracle Health">Oracle Health</option><option value="athenahealth">athenahealth</option><option value="eClinicalWorks">eClinicalWorks</option></select></div></div>
+        <div class="btn-row"><button class="primary" id="btn-fetch-appt">Read upcoming appointments</button></div>
+        <div id="appt-list"></div>
+      </div>
+      <div id="vm-calendar" style="display:none">
+        <div class="btn-row"><button class="primary" id="btn-scan-cal">Scan phone calendar (simulated EventKit / CalendarContract read)</button></div>
+        <div id="cal-list"></div>
+        <div class="form" style="margin-top:12px"><div class="q"><label>Or enter the visit</label>
+          <input type="text" id="man-practice" placeholder="Practice name"> </div>
+          <div class="q"><input type="date" id="man-date" value="2026-11-18"></div>
+          <div class="q"><select id="man-type"><option value="primary">Primary care</option><option value="ortho">Orthopedics</option><option value="dental">Dental</option><option value="eye">Eye care</option></select></div>
+          <div class="btn-row"><button id="btn-manual">Use this visit</button></div></div>
+      </div>
+    </div>
+    <div class="panel"><h4>Artifact: <span id="art-visit-title">FHIR Appointment (read from the EHR)</span></h4><pre class="art" id="art-visit">// appears after you pick a visit</pre></div>
+  </div>
+  <div class="note info" id="visit-summary" style="display:none"></div>
+  <details class="code"><summary>Show the code</summary><pre class="art" data-code="scanDeviceCalendar"></pre></details>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="step locked" id="s3">
+  <div class="stephead"><span class="num">STEP 3</span><h2>Intake on the phone, as a US Core QuestionnaireResponse</h2><span class="pill verified">US Core 9.0.0 (SDC)</span></div>
+  <p class="sub">The visit type picks the form. The patient answers on their phone, and the answers become a QuestionnaireResponse that follows the US Core 9.0.0 profile, which inherits from SDC and therefore names the exact Questionnaire version being answered. The KTC bundle allows US Core resources, so the form rides inside the same package as the clinical records.</p>
+  <div class="body">
+  <div class="grid">
+    <div class="form" id="intake-form"></div>
+    <div class="panel"><h4>Artifact: QuestionnaireResponse (live, updates as you type)</h4><pre class="art" id="art-qr"></pre></div>
+  </div>
+  <div class="btn-row"><button class="primary" id="btn-intake-done">Done with intake</button></div>
+  <details class="code"><summary>Show the code</summary><pre class="art" data-code="buildQuestionnaireResponse"></pre></details>
+  </div>
+</section>
+
+<!-- 4 -->
+<section class="step locked" id="s4">
+  <div class="stephead"><span class="num">STEP 4</span><h2>Suggested records for this visit, with the reason, and the patient's final say</h2></div>
+  <p class="sub">The app knows the visit type, so it pre-selects the records that kind of clinician actually uses and says why. The patient can switch any of them on or off. Each row also shows what the KTC guide requires the receiving EHR to do with that resource type.</p>
+  <div class="body">
+  <div id="rec-table"></div>
+  <div class="btn-row"><button class="primary" id="btn-rec-done">Use this selection</button></div>
+  <details class="code"><summary>Show the code</summary><pre class="art" data-code="recommend"></pre></details>
+  </div>
+</section>
+
+<!-- 5 -->
+<section class="step locked" id="s5">
+  <div class="stephead"><span class="num">STEP 5</span><h2>Access control: expiry on every link, a PIN where the spec allows one</h2><span class="pill verified">SHL STU1 flag rules</span></div>
+  <p class="sub">Every SMART Health Link this app makes carries an expiry, which the KTC guide requires. A PIN is a different matter. The KTC guide says patient apps SHALL use the <code>U</code> flag (direct file, no manifest), and the SHL specification says <code>U</code> SHALL NOT be combined with <code>P</code> (passcode). So the QR pass shown at the desk cannot carry a PIN and stay conformant. The link the app pushes to the EHR is not governed by the KTC guide's QR rules, so it can use the base SHL manifest flow with a passcode, and the passcode travels inside the authenticated API call.</p>
+  <div class="body">
+  <div class="grid">
+    <div class="form">
+      <div class="q"><label>QR pass lifetime (guide suggests 5 to 15 minutes for an in-person visit)</label>
+        <select id="exp-qr"><option value="300">5 minutes</option><option value="600">10 minutes</option><option value="900" selected>15 minutes</option></select></div>
+      <div class="q"><label>EHR push link lifetime (only has to outlive the EHR's immediate fetch)</label>
+        <select id="exp-api"><option value="900">15 minutes</option><option value="3600" selected>1 hour</option><option value="172800">48 hours (guide's printed-QR upper example)</option></select></div>
+      <div class="q"><label><input type="checkbox" id="pin-on" checked> Protect the EHR push link with a PIN</label>
+        <input type="text" id="pin" value="4821" maxlength="8" style="max-width:140px" placeholder="PIN (5 to 128 chars per SHL spec; demo uses 4)"></div>
+      <div class="note" id="pin-note"></div>
+    </div>
+    <div class="panel"><h4>Artifact: link policy the app will apply</h4><pre class="art" id="art-policy"></pre></div>
+  </div>
+  <div class="btn-row"><button class="primary" id="btn-policy-done">Apply</button></div>
+  <details class="code"><summary>Show the code</summary><pre class="art" data-code="buildShlink"></pre></details>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="step locked" id="s6">
+  <div class="stephead"><span class="num">STEP 6</span><h2>Package, attest, encrypt, link</h2><span class="pill verified">KTC PatientSharedBundle · App Attestation</span></div>
+  <p class="sub">Four things happen in order and all four are real on this page. The app assembles a PatientSharedBundle (one Patient, the selected US Core and CARIN resources, the QuestionnaireResponse, a Provenance for the identity check, and a FHIR-Rendered PDF as a PatientSharedDocumentReference). It signs the KTC guide's App Attestation with an ES256 key and puts the JWS in <code>Bundle.meta.extension</code>. It encrypts the bundle with AES-256-GCM as a JWE (<code>alg dir</code>, <code>enc A256GCM</code>). It hosts the file at a 256-bit random path and builds the <code>shlink:/</code> payload.</p>
+  <div class="body">
+  <div class="btn-row"><button class="primary" id="btn-build">Build and encrypt</button><span class="small" id="build-status"></span></div>
+  <div class="grid" style="margin-top:14px">
+    <div class="panel"><h4>Artifact: PatientSharedBundle (decrypted view) <span class="small" id="bundle-count"></span></h4><pre class="art" id="art-bundle"></pre></div>
+    <div>
+      <div class="panel"><h4>Artifact: App Attestation JWS, decoded <span class="tag must">KTC optional, verified</span></h4><pre class="art" id="art-att"></pre></div>
+      <div class="panel" style="margin-top:12px"><h4>Artifact: Provenance with identity assurance <span class="tag prop">MDR proposal</span></h4><pre class="art" id="art-prov"></pre></div>
+    </div>
+  </div>
+  <div class="grid" style="margin-top:12px">
+    <div class="panel"><h4>Artifact: JWE compact serialization (what the hosted file actually contains)</h4><pre class="art" id="art-jwe"></pre></div>
+    <div class="panel"><h4>Artifact: SHLink payloads, decoded</h4><pre class="art" id="art-shl"></pre></div>
+  </div>
+  <div class="note"><b>On the identity claim.</b> The KTC guide's own provenance signal is the App Attestation, which answers "did a recognized app produce this?" It does not carry an identity assurance level. We add a Provenance whose <em>verifier</em> agent carries an MDR-defined extension naming the level, the credential service provider and the time. The receiving EHR is free to ignore it. We would rather the group tell us where this belongs than invent a home for it alone.</div>
+  <details class="code"><summary>Show the code</summary><pre class="art" data-code="buildBundle,buildAttestation,encryptJwe,buildProvenance"></pre></details>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="step locked" id="s7">
+  <div class="stephead"><span class="num">STEP 7</span><h2>Check-in pass: QR at the desk, or a PDF</h2><span class="pill verified">KTC primary workflow</span></div>
+  <p class="sub">The QR is the KTC guide's primary workflow and always works. Staff scan it, the EHR fetches the file with a <code>recipient</code> parameter, decrypts it with the key from the link, and files it. The PDF is the same FHIR-Rendered document that is already inside the bundle, saved to the phone for a practice with no scanner and no integration.</p>
+  <div class="body">
+  <div class="grid">
+    <div>
+      <div class="phone"><div class="bar"><span>9:52</span><span>Check-in pass</span></div>
+        <div class="qrbox"><canvas id="qr"></canvas></div>
+        <div style="text-align:center;margin-top:8px"><div><b>Prairie Ridge Family Medicine</b></div><div class="small">Expires in <span class="count" id="qr-count">--:--</span> · flag <code>U</code> · no PIN</div></div>
+        <div class="btn-row" style="justify-content:center"><button id="btn-pdf">Save PDF to phone</button><button id="btn-copy">Copy link</button></div>
+      </div>
+      <div class="panel" id="pdf-preview" style="display:none;margin-top:12px"></div>
+      <p class="small" style="margin-top:12px">The source document also listed sending the link by message or portal. That option is not in this build. The guide treats a pasted link as an optional receiver workflow, and this design keeps the patient out of practice portals entirely. Happy to add it if the group wants it demonstrated.</p>
+    </div>
+    <div>
+      <div class="panel"><h4>Practice side: what the scanner does <span class="pill sim">EHR simulated</span></h4>
+        <div class="btn-row" style="margin-top:4px"><button class="primary" id="btn-scan">Simulate front-desk scan</button></div>
+        <pre class="art" id="art-scan">// GET {url}?recipient=... then decrypt, then file</pre></div>
+    </div>
+  </div>
+  <details class="code"><summary>Show the code</summary><pre class="art" data-code="directGet,decryptJwe"></pre></details>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="step locked" id="s8">
+  <div class="stephead"><span class="num">STEP 8</span><h2>Direct API push into the EHR</h2><span class="pill proposed">Fills the gap the guide names</span></div>
+  <p class="sub">The KTC guide defines how a receiver fetches and files a package. It says separately that "a fuller check-in protocol" is being worked on to carry request context and a more integrated handoff between the provider check-in experience and the patient app. This step is how our app does that today, for a practice whose EHR it is already integrated with. Everything standard is marked; the two things we had to define ourselves are marked too.</p>
+  <div class="body">
+
+  <h3 style="margin:8px 0 4px;font-size:16px">8.1 Capability gate and token <span class="pill verified">CapabilityStatement · SMART Backend Services</span></h3>
+  <p class="small">The app reads the EHR's CapabilityStatement and looks for three things: a token endpoint in the SMART <code>oauth-uris</code> extension, <code>create</code> on DocumentReference, and the proposed <code>$receive-shl</code> operation. If the EHR advertises none of them, the app falls back to the QR. Then it authenticates as a backend service: <code>grant_type=client_credentials</code> with a JWT client assertion signed by the app's registered key (ES384 here), asking for <code>system/DocumentReference.c</code>.</p>
+  <div class="btn-row"><button class="primary" id="btn-gate">Run capability gate and get a token</button></div>
+  <div class="grid" style="margin-top:12px">
+    <div class="panel"><h4>Artifact: capability gate result + client assertion (decoded)</h4><pre class="art" id="art-gate"></pre></div>
+    <div class="panel"><h4>Artifact: token request and response</h4><pre class="art" id="art-token"></pre></div>
+  </div>
+
+  <h3 style="margin:18px 0 4px;font-size:16px">8.2 Dispatch <span class="pill proposed">$receive-shl</span> <span class="pill verified">or DocumentReference create</span></h3>
+  <p class="small">Two ways to hand the link over. The proposed operation takes a Parameters resource with the link, the passcode and the appointment, so a PIN-protected link works. The standards-only path creates a DocumentReference whose <code>attachment.url</code> is the <code>shlink:/</code> URI and whose <code>context.related</code> points at the Appointment. DocumentReference has no field for a passcode, which is exactly why the operation exists.</p>
+  <div class="choice" id="dispatch-mode">
+    <label class="on"><input type="radio" name="dm" value="op" checked><span><b>POST [base]/$receive-shl</b><small>Proposed operation. Carries passcode and appointment.</small></span></label>
+    <label><input type="radio" name="dm" value="docref"><span><b>POST [base]/DocumentReference</b><small>Existing FHIR only. Link must have no PIN.</small></span></label>
+  </div>
+  <div class="btn-row"><button class="primary" id="btn-dispatch">Send to EHR</button></div>
+  <div class="grid" style="margin-top:12px">
+    <div class="panel"><h4>Artifact: request body</h4><pre class="art" id="art-req"></pre></div>
+    <div class="panel"><h4>Artifact: response (OperationOutcome)</h4><pre class="art" id="art-res"></pre></div>
+  </div>
+
+  <h3 style="margin:18px 0 4px;font-size:16px">8.3 to 8.5 What the EHR did with it <span class="pill sim">EHR simulated</span></h3>
+  <div class="grid">
+    <div class="panel"><h4>Manifest resolution and decryption <span class="tag must">SHL STU1</span></h4><pre class="art" id="art-manifest"></pre></div>
+    <div class="panel"><h4>Attestation, identity, MPI match, encounter binding</h4><pre class="art" id="art-verify"></pre></div>
+  </div>
+  <div class="panel" style="margin-top:12px"><h4>Chart filing: intake, reconciliation queue, documents</h4><div id="art-chart"></div></div>
+
+  <h3 style="margin:18px 0 4px;font-size:16px">8.6 Status back to the patient</h3>
+  <div class="timeline" id="status-tl"><span class="st on">Generating</span><span class="arr">→</span><span class="st">Sent</span><span class="arr">→</span><span class="st">Retrieved by practice</span></div>
+  <div class="panel"><h4>Artifact: the app's audit log (every fetch, with recipient and time, as the guide requires)</h4><pre class="art" id="art-audit"></pre></div>
+  <details class="code"><summary>Show the code</summary><pre class="art" data-code="capabilityGate,clientAssertion,chooseRoute,manifest"></pre></details>
+  </div>
+</section>
+
+<footer>
+  <h3 style="color:var(--navy);font-size:16px;margin:0 0 8px">What is real on this page and what stands in</h3>
+  <table><tr><th>Real</th><th>Stand-in</th></tr>
+  <tr><td>AES-256-GCM JWE (dir / A256GCM / cty application/fhir+json) via Web Crypto; interoperates with the jose library, verified both directions</td><td>ID.me identity proofing (a button produces the record the app would store)</td></tr>
+  <tr><td>ES256 App Attestation JWS, signed and then verified against the app's JWKS by the receiver</td><td>The patient app's server, the EHR, its token endpoint and its MPI all run inside this page</td></tr>
+  <tr><td>ES384 client assertion for SMART Backend Services; token endpoint checks iss, sub, aud, exp and signature</td><td>The four EHR names are the app's integrations, with sample data; no live FHIR calls</td></tr>
+  <tr><td>shlink:/ payloads, 256-bit path, 43-character key, U vs P flag rules enforced</td><td>Phone calendar read is a fixture; a shipped app uses EventKit / CalendarContract</td></tr>
+  <tr><td>QR code encodes the live link; PDF is generated and downloadable</td><td>Keys are generated fresh on every page load and never leave the browser</td></tr></table>
+  <h3 style="color:var(--navy);font-size:16px;margin:18px 0 8px">Sources</h3>
+  <ul class="srcs">
+    <li>Patient-Shared Health Documents via SMART Health Links (KTC guide), v0.10.2, Draft for July 2026. <a href="https://ktc-spec.github.io/">ktc-spec.github.io</a>. Used for: U flag SHALL, exp required, recipient parameter, PatientSharedBundle and PatientSharedDocumentReference profiles, PATAST, persistence tiers, App Attestation, expiry table, ahead-of-time check-in note.</li>
+    <li>SMART Health Cards and Links IG 1.0.0 STU 1, Health Links Specification. <a href="https://hl7.org/fhir/uv/smart-health-cards-and-links/links-specification.html">hl7.org</a>. Used for: payload fields, flag definitions and the U/P exclusion, manifest request and response, 401 remainingAttempts, JWE parameters.</li>
+    <li>US Core 9.0.0, US Core QuestionnaireResponse Profile. <a href="https://hl7.org/fhir/us/core/StructureDefinition-us-core-questionnaireresponse.html">hl7.org</a>.</li>
+    <li>SMART App Launch IG, Backend Services. <a href="https://hl7.org/fhir/smart-app-launch/backend-services.html">hl7.org</a>. Used for: client_credentials grant, jwt-bearer client assertion, system/ scopes.</li>
+    <li>Interoperable Digital Identity and Patient Matching IG v2.0.0, Guidance on Identity Assurance. <a href="https://hl7.org/fhir/us/identity-matching/guidance-on-identity-assurance.html">hl7.org</a>. Used for: the statement that IALs are not in a code system or value set in that guide.</li>
+  </ul>
+  <p>Fictional patient and practices. Built by MyDigiRecords for the CMS Health Technology Ecosystem Kill the Clipboard check-in discussion. Feedback welcome, especially on the two proposals.</p>
+</footer>
+</div>
+
+<script type="text/plain" id="core-src">/* MDR app-initiated pre-check-in: protocol core.
+ * Plain script, no framework. Runs in a browser and in Node 18+ (globalThis.crypto).
+ * Everything cryptographic here is real: AES-256-GCM JWE (SHL STU1), ES256 App Attestation
+ * (KTC guide v0.10.2), ES384 client assertion (SMART Backend Services).
+ */
+(function (root) {
+'use strict';
+
+const te = new TextEncoder();
+const td = new TextDecoder();
+
+// ---------- base64url ----------
+function b64u(bytes) {
+  let s = '';
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64uDecode(str) {
+  const pad = str.length % 4 === 0 ? '' : '='.repeat(4 - (str.length % 4));
+  const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/') + pad);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function b64uJson(obj) { return b64u(te.encode(JSON.stringify(obj))); }
+function randomBytes(n) { return crypto.getRandomValues(new Uint8Array(n)); }
+function uuid() { return crypto.randomUUID(); }
+function nowIso() { return new Date().toISOString(); }
+
+// ---------- JWE: alg "dir", enc "A256GCM", cty "application/fhir+json"  (SHL STU1 §Encrypting) ----------
+const JWE_HEADER = { alg: 'dir', enc: 'A256GCM', cty: 'application/fhir+json' };
+const JWE_HEADER_B64 = b64uJson(JWE_HEADER);
+
+async function encryptJwe(obj, keyBytes) {
+  const plaintext = te.encode(JSON.stringify(obj));
+  const iv = randomBytes(12);                       // unique nonce per encryption
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['encrypt']);
+  const aad = te.encode(JWE_HEADER_B64);            // AAD = ASCII(BASE64URL(protected header))
+  const out = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: aad, tagLength: 128 }, key, plaintext));
+  const ct = out.slice(0, out.length - 16), tag = out.slice(out.length - 16);
+  return [JWE_HEADER_B64, '', b64u(iv), b64u(ct), b64u(tag)].join('.');
+}
+async function decryptJwe(compact, keyBytes) {
+  const [h, ek, iv, ct, tag] = compact.split('.');
+  if (ek !== '') throw new Error('alg dir requires an empty encrypted key');
+  const header = JSON.parse(td.decode(b64uDecode(h)));
+  if (header.alg !== 'dir' || header.enc !== 'A256GCM') throw new Error('unexpected JWE header');
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['decrypt']);
+  const c = b64uDecode(ct), t = b64uDecode(tag);
+  const joined = new Uint8Array(c.length + t.length); joined.set(c); joined.set(t, c.length);
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64uDecode(iv), additionalData: te.encode(h), tagLength: 128 }, key, joined);
+  return { header, payload: JSON.parse(td.decode(pt)) };
+}
+
+// ---------- JWS (compact) with ECDSA ----------
+const CURVES = { ES256: { namedCurve: 'P-256', hash: 'SHA-256' }, ES384: { namedCurve: 'P-384', hash: 'SHA-384' } };
+async function generateSigningKey(alg) {
+  const kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: CURVES[alg].namedCurve }, true, ['sign', 'verify']);
+  const jwk = await crypto.subtle.exportKey('jwk', kp.publicKey);
+  delete jwk.key_ops; delete jwk.ext;
+  const kid = b64u(new Uint8Array(await crypto.subtle.digest('SHA-256', te.encode(JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }))))).slice(0, 16);
+  return { alg, privateKey: kp.privateKey, publicJwk: { ...jwk, kid, use: 'sig', alg } };
+}
+async function signJwt(claims, keyPair, header = {}) {
+  const alg = keyPair.alg;
+  const h = { alg, kid: keyPair.publicJwk.kid, ...header };
+  const input = b64uJson(h) + '.' + b64uJson(claims);
+  const sig = new Uint8Array(await crypto.subtle.sign({ name: 'ECDSA', hash: CURVES[alg].hash }, keyPair.privateKey, te.encode(input)));
+  return input + '.' + b64u(sig);
+}
+async function verifyJwt(jwt, jwks) {
+  const [h, p, s] = jwt.split('.');
+  const header = JSON.parse(td.decode(b64uDecode(h)));
+  const jwk = (jwks.keys || []).find(k => k.kid === header.kid);
+  if (!jwk) return { ok: false, reason: 'kid ' + header.kid + ' not in JWKS', header };
+  if (jwk.kty !== 'EC') return { ok: false, reason: 'key is not EC', header };
+  const curve = CURVES[header.alg];
+  if (!curve || jwk.crv !== curve.namedCurve) return { ok: false, reason: 'alg/curve mismatch', header };
+  const key = await crypto.subtle.importKey('jwk', { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y }, { name: 'ECDSA', namedCurve: jwk.crv }, false, ['verify']);
+  const ok = await crypto.subtle.verify({ name: 'ECDSA', hash: curve.hash }, key, b64uDecode(s), te.encode(h + '.' + p));
+  return { ok, reason: ok ? 'signature valid' : 'signature invalid', header, claims: JSON.parse(td.decode(b64uDecode(p))) };
+}
+
+// ---------- SMART Health Link payload (SHL STU1 §Payload) ----------
+function buildShlink({ url, keyBytes, exp, flag, label }) {
+  if (url.length > 128) throw new Error('SHL url SHALL NOT exceed 128 characters');
+  if (flag && flag.includes('U') && flag.includes('P')) throw new Error('flag U SHALL NOT be used in combination with P');
+  const payload = { url, flag, key: b64u(keyBytes), exp, label };
+  if (!flag) delete payload.flag;
+  if (label && label.length > 80) throw new Error('label SHALL be no longer than 80 characters');
+  return { payload, uri: 'shlink:/' + b64uJson(payload) };
+}
+function parseShlink(uri) {
+  const m = /shlink:\/([A-Za-z0-9_-]+)/.exec(uri);     // bare URI or viewer-prefixed URL; KTC says accept both
+  if (!m) throw new Error('not a shlink');
+  return JSON.parse(td.decode(b64uDecode(m[1])));
+}
+
+// ---------- Minimal PDF writer (text only, Helvetica) ----------
+function textPdf(title, lines) {
+  const esc = s => String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+  let y = 760;
+  let content = 'BT /F1 14 Tf 50 ' + y + ' Td (' + esc(title) + ') Tj ET\n';
+  y -= 26;
+  for (const ln of lines) {
+    if (y < 50) break;
+    content += 'BT /F1 10 Tf 50 ' + y + ' Td (' + esc(ln) + ') Tj ET\n';
+    y -= 14;
+  }
+  const objs = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+    '<< /Length ' + te.encode(content).length + ' >>\nstream\n' + content + 'endstream',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'
+  ];
+  let pdf = '%PDF-1.4\n%âãÏÓ\n';
+  const offsets = [];
+  objs.forEach((o, i) => { offsets.push(te.encode(pdf).length); pdf += (i + 1) + ' 0 obj\n' + o + '\nendobj\n'; });
+  const xref = te.encode(pdf).length;
+  pdf += 'xref\n0 ' + (objs.length + 1) + '\n0000000000 65535 f \n';
+  for (const off of offsets) pdf += String(off).padStart(10, '0') + ' 00000 n \n';
+  pdf += 'trailer\n<< /Size ' + (objs.length + 1) + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n';
+  return te.encode(pdf);
+}
+
+// ---------- Sample longitudinal data held by the app (fictional patient) ----------
+const PATIENT_ID = 'urn:uuid:7b1c2d7e-5a0f-4c3e-9b2a-1f6d8e9c0a11';
+const patient = {
+  resourceType: 'Patient', id: '7b1c2d7e-5a0f-4c3e-9b2a-1f6d8e9c0a11',
+  identifier: [{ system: 'https://mydigirecords.com/fhir/patient-id', value: 'MDR-204117' }],
+  name: [{ family: 'Alvarez', given: ['Jordan'] }], gender: 'female', birthDate: '1979-03-14',
+  telecom: [{ system: 'phone', value: '913-555-0142', use: 'mobile' }],
+  address: [{ line: ['4410 W 118th St'], city: 'Leawood', state: 'KS', postalCode: '66211' }]
+};
+const RECORDS = {
+  allergies: { label: 'Allergies and intolerances', profile: 'US Core AllergyIntolerance', ktc: 'SHALL persist', resources: [
+    { resourceType: 'AllergyIntolerance', id: 'al-1', clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical', code: 'active' }] }, verificationStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-verification', code: 'confirmed' }] }, code: { coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '7980', display: 'Penicillin G' }], text: 'Penicillin' }, patient: { reference: PATIENT_ID }, reaction: [{ manifestation: [{ text: 'Hives' }], severity: 'moderate' }] },
+    { resourceType: 'AllergyIntolerance', id: 'al-2', clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical', code: 'active' }] }, code: { coding: [{ system: 'http://snomed.info/sct', code: '300913006', display: 'Shellfish allergy' }], text: 'Shellfish' }, patient: { reference: PATIENT_ID } }
+  ] },
+  medications: { label: 'Medications', profile: 'US Core MedicationRequest', ktc: 'SHALL persist', resources: [
+    { resourceType: 'MedicationRequest', id: 'mr-1', status: 'active', intent: 'order', medicationCodeableConcept: { coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '314076', display: 'lisinopril 10 MG Oral Tablet' }] }, subject: { reference: PATIENT_ID }, authoredOn: '2026-02-11', requester: { display: 'Dr. R. Okafor' }, dosageInstruction: [{ text: '1 tablet by mouth daily' }] },
+    { resourceType: 'MedicationRequest', id: 'mr-2', status: 'active', intent: 'order', medicationCodeableConcept: { coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '861007', display: 'metformin hydrochloride 500 MG Oral Tablet' }] }, subject: { reference: PATIENT_ID }, authoredOn: '2026-02-11', requester: { display: 'Dr. R. Okafor' }, dosageInstruction: [{ text: '1 tablet by mouth twice daily with meals' }] },
+    { resourceType: 'MedicationRequest', id: 'mr-3', status: 'active', intent: 'order', medicationCodeableConcept: { coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '617310', display: 'atorvastatin 20 MG Oral Tablet' }] }, subject: { reference: PATIENT_ID }, authoredOn: '2026-02-11', requester: { display: 'Dr. R. Okafor' }, dosageInstruction: [{ text: '1 tablet by mouth at bedtime' }] }
+  ] },
+  conditions: { label: 'Problems and health concerns', profile: 'US Core Condition', ktc: 'SHALL persist', resources: [
+    { resourceType: 'Condition', id: 'c-1', clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-clinical', code: 'active' }] }, category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-category', code: 'problem-list-item' }] }], code: { coding: [{ system: 'http://snomed.info/sct', code: '44054006', display: 'Diabetes mellitus type 2' }] }, subject: { reference: PATIENT_ID }, onsetDateTime: '2019-06' },
+    { resourceType: 'Condition', id: 'c-2', clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-clinical', code: 'active' }] }, category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-category', code: 'problem-list-item' }] }], code: { coding: [{ system: 'http://snomed.info/sct', code: '38341003', display: 'Hypertensive disorder' }] }, subject: { reference: PATIENT_ID }, onsetDateTime: '2017-01' },
+    { resourceType: 'Condition', id: 'c-3', clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-clinical', code: 'active' }] }, category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-category', code: 'problem-list-item' }] }], code: { coding: [{ system: 'http://snomed.info/sct', code: '55822004', display: 'Hyperlipidemia' }] }, subject: { reference: PATIENT_ID } }
+  ] },
+  immunizations: { label: 'Immunizations', profile: 'US Core Immunization', ktc: 'SHALL persist', resources: [
+    { resourceType: 'Immunization', id: 'im-1', status: 'completed', vaccineCode: { coding: [{ system: 'http://hl7.org/fhir/sid/cvx', code: '140', display: 'Influenza, seasonal, injectable, preservative free' }] }, patient: { reference: PATIENT_ID }, occurrenceDateTime: '2026-10-03', primarySource: true },
+    { resourceType: 'Immunization', id: 'im-2', status: 'completed', vaccineCode: { coding: [{ system: 'http://hl7.org/fhir/sid/cvx', code: '115', display: 'Tdap' }] }, patient: { reference: PATIENT_ID }, occurrenceDateTime: '2021-08-19', primarySource: true }
+  ] },
+  vitals: { label: 'Vital signs (latest)', profile: 'US Core Vital Signs (Observation)', ktc: 'SHOULD persist', resources: [
+    { resourceType: 'Observation', id: 'ob-bp', status: 'final', category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'vital-signs' }] }], code: { coding: [{ system: 'http://loinc.org', code: '85354-9', display: 'Blood pressure panel with all children optional' }] }, subject: { reference: PATIENT_ID }, effectiveDateTime: '2026-11-09T07:40:00-06:00', component: [
+      { code: { coding: [{ system: 'http://loinc.org', code: '8480-6', display: 'Systolic blood pressure' }] }, valueQuantity: { value: 128, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' } },
+      { code: { coding: [{ system: 'http://loinc.org', code: '8462-4', display: 'Diastolic blood pressure' }] }, valueQuantity: { value: 82, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' } } ] },
+    { resourceType: 'Observation', id: 'ob-wt', status: 'final', category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'vital-signs' }] }], code: { coding: [{ system: 'http://loinc.org', code: '29463-7', display: 'Body weight' }] }, subject: { reference: PATIENT_ID }, effectiveDateTime: '2026-11-09T07:40:00-06:00', valueQuantity: { value: 84, unit: 'kg', system: 'http://unitsofmeasure.org', code: 'kg' } }
+  ] },
+  insurance: { label: 'Insurance card', profile: 'CARIN Digital Insurance Card Coverage', ktc: 'SHOULD persist', resources: [
+    { resourceType: 'Coverage', id: 'cov-1', status: 'active', subscriberId: 'KSB-88213904', beneficiary: { reference: PATIENT_ID }, relationship: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/subscriber-relationship', code: 'self' }] }, payor: [{ display: 'Sunflower Health Plan' }], class: [{ type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/coverage-class', code: 'group' }] }, value: 'GRP-55120', name: 'Employer PPO' }] }
+  ] }
+};
+
+// ---------- Visit types: suggested records, with the clinical reason ----------
+const VISITS = {
+  primary: { label: 'Primary care, annual visit', specialty: 'Family medicine', suggest: {
+    allergies: 'Needed before any prescription is written or renewed.',
+    medications: 'Reconciliation against the chart is the first thing a PCP does.',
+    conditions: 'Active problem list drives the visit agenda and screening orders.',
+    immunizations: 'Annual visit is where gaps (flu, Tdap, pneumococcal) get closed.',
+    vitals: 'Home blood pressure and weight trend between visits are more useful than one reading in clinic.',
+    insurance: 'Front desk verifies eligibility before the visit.' } },
+  ortho: { label: 'Orthopedics, knee pain', specialty: 'Orthopedic surgery', suggest: {
+    allergies: 'Contrast, latex and NSAID reactions change imaging and injection plans.',
+    medications: 'Anticoagulants and NSAIDs matter for injections and any surgery.',
+    conditions: 'Diabetes affects wound healing and infection risk for procedures.',
+    insurance: 'Imaging and procedures need eligibility and prior auth.' },
+    off: { immunizations: 'Rarely needed for an ortho consult.', vitals: 'Clinic will take its own.' } },
+  dental: { label: 'Dental, routine exam', specialty: 'General dentistry', suggest: {
+    allergies: 'Local anesthetic, latex and antibiotic allergies are asked at every dental visit.',
+    medications: 'Bisphosphonates and anticoagulants change what a dentist can do that day.',
+    conditions: 'Diabetes and cardiac history drive periodontal care and antibiotic prophylaxis.',
+    vitals: 'Dental offices screen blood pressure before anesthesia.',
+    insurance: 'Dental benefit check at the desk.' },
+    off: { immunizations: 'Not part of a dental intake.' } },
+  eye: { label: 'Eye care, diabetic eye exam', specialty: 'Ophthalmology', suggest: {
+    conditions: 'Diabetes duration sets the retinopathy screening interval.',
+    medications: 'Steroids and hydroxychloroquine have eye effects the doctor checks for.',
+    allergies: 'Dilating drop and iodine reactions.',
+    vitals: 'Blood pressure matters for retinal vascular findings.',
+    insurance: 'Medical vs vision benefit routing.' },
+    off: { immunizations: 'Not needed for an eye exam.' } }
+};
+function recommend(visitKey) {
+  const v = VISITS[visitKey];
+  return Object.keys(RECORDS).map(k => ({ key: k, label: RECORDS[k].label, profile: RECORDS[k].profile, ktc: RECORDS[k].ktc,
+    suggested: Boolean(v.suggest[k]), reason: v.suggest[k] || (v.off && v.off[k]) || 'Not suggested for this visit type.' }));
+}
+
+// ---------- Questionnaire + US Core 9.0.0 QuestionnaireResponse (SDC based) ----------
+const QUESTIONNAIRES = {
+  primary: { url: 'https://mydigirecords.com/fhir/Questionnaire/precheckin-primary-care', version: '1.0', items: [
+    { linkId: 'reason', text: 'What is the main reason for this visit?', type: 'string', answer: 'Annual check-up; refill lisinopril' },
+    { linkId: 'new-symptoms', text: 'Any new symptoms since your last visit?', type: 'string', answer: 'Occasional headaches in the afternoon' },
+    { linkId: 'med-changes', text: 'Have you started, stopped, or changed any medicines?', type: 'boolean', answer: false },
+    { linkId: 'tobacco', text: 'Do you currently use tobacco?', type: 'boolean', answer: false },
+    { linkId: 'phq2', text: 'Over the past two weeks, how often have you felt down, depressed, or hopeless?', type: 'choice', answer: 'Not at all' } ] },
+  ortho: { url: 'https://mydigirecords.com/fhir/Questionnaire/precheckin-orthopedics', version: '1.0', items: [
+    { linkId: 'reason', text: 'Which joint, and what happened?', type: 'string', answer: 'Right knee, pain climbing stairs for 6 weeks, no injury' },
+    { linkId: 'pain', text: 'Pain today, 0 to 10', type: 'integer', answer: 5 },
+    { linkId: 'prior-imaging', text: 'Any X-ray or MRI of this joint already?', type: 'boolean', answer: false },
+    { linkId: 'blood-thinner', text: 'Do you take a blood thinner?', type: 'boolean', answer: false } ] },
+  dental: { url: 'https://mydigirecords.com/fhir/Questionnaire/precheckin-dental', version: '1.0', items: [
+    { linkId: 'reason', text: 'Reason for visit', type: 'string', answer: 'Routine cleaning and exam' },
+    { linkId: 'last-cleaning', text: 'When was your last cleaning?', type: 'date', answer: '2026-04-22' },
+    { linkId: 'bleeding-gums', text: 'Do your gums bleed when you brush?', type: 'boolean', answer: true },
+    { linkId: 'bisphosphonate', text: 'Have you ever taken a bone-strengthening medicine (bisphosphonate)?', type: 'boolean', answer: false } ] },
+  eye: { url: 'https://mydigirecords.com/fhir/Questionnaire/precheckin-eye', version: '1.0', items: [
+    { linkId: 'reason', text: 'Reason for visit', type: 'string', answer: 'Yearly diabetic eye exam' },
+    { linkId: 'vision-change', text: 'Any change in vision, floaters, or flashes?', type: 'boolean', answer: false },
+    { linkId: 'driver', text: 'Will someone drive you home after dilation?', type: 'boolean', answer: true },
+    { linkId: 'last-a1c', text: 'Most recent A1c, if you know it', type: 'string', answer: '6.9% (Sept 2026)' } ] }
+};
+function buildQuestionnaire(visitKey) {
+  const q = QUESTIONNAIRES[visitKey];
+  return { resourceType: 'Questionnaire', url: q.url, version: q.version, status: 'active', title: VISITS[visitKey].label + ' pre-visit intake',
+    item: q.items.map(i => ({ linkId: i.linkId, text: i.text, type: i.type })) };
+}
+function buildQuestionnaireResponse(visitKey, answers) {
+  const q = QUESTIONNAIRES[visitKey];
+  const val = (type, a) => type === 'boolean' ? { valueBoolean: a } : type === 'integer' ? { valueInteger: a } : type === 'date' ? { valueDate: a } : type === 'choice' ? { valueCoding: { display: a } } : { valueString: a };
+  return { resourceType: 'QuestionnaireResponse', id: 'qr-' + visitKey,
+    questionnaire: q.url + '|' + q.version,                 // SDC: canonical of the form being answered (required)
+    status: 'completed', subject: { reference: PATIENT_ID }, authored: nowIso(),
+    author: { reference: PATIENT_ID }, source: { reference: PATIENT_ID },   // US Core: author/source carry USCDI provenance author
+    item: q.items.map(i => ({ linkId: i.linkId, text: i.text, answer: [val(i.type, answers[i.linkId] !== undefined ? answers[i.linkId] : i.answer)] })) };
+}
+
+// ---------- Provenance with identity assurance (MDR proposal; not defined in any published IG) ----------
+const IAL_EXT = 'https://mydigirecords.com/fhir/StructureDefinition/identity-assurance';
+function buildProvenance(idv) {
+  return { resourceType: 'Provenance', id: 'prov-idv',
+    target: [{ reference: PATIENT_ID }], recorded: idv.verifiedAt,
+    activity: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-DataOperation', code: 'CREATE' }] },
+    agent: [
+      { type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/provenance-participant-type', code: 'author' }] }, who: { reference: PATIENT_ID } },
+      { type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/provenance-participant-type', code: 'verifier' }] }, who: { display: idv.csp },
+        extension: [{ url: IAL_EXT, extension: [
+          { url: 'level', valueCode: idv.ial },                       // NIST SP 800-63-3 IAL label; no HL7 code system exists for this today
+          { url: 'credentialServiceProvider', valueString: idv.csp },
+          { url: 'verifiedAt', valueDateTime: idv.verifiedAt },
+          { url: 'verifiedAttributes', valueString: 'name, birthDate, address' } ] }] } ] };
+}
+
+// ---------- PatientSharedDocumentReference (KTC guide profile) ----------
+function buildPdfDocRef(pdfBytes, kind) {
+  const type = kind === 'rendered' ? { system: 'http://loinc.org', code: '60591-5', display: 'Patient summary Document' }
+                                   : { system: 'http://loinc.org', code: '51855-5', display: 'Patient Note' };
+  return { resourceType: 'DocumentReference', id: 'doc-' + kind,
+    meta: { security: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationValue', code: 'PATAST', display: 'patient asserted' }] },
+    status: 'current', type: { coding: [type] },
+    category: [{ coding: [{ system: 'https://cms.gov/fhir/CodeSystem/patient-shared-category', code: 'patient-shared', display: 'Patient-Shared' }] }],
+    subject: { reference: PATIENT_ID }, author: [{ reference: PATIENT_ID }], date: nowIso(),
+    description: kind === 'rendered' ? 'FHIR-Rendered PDF of this bundle' : 'Patient story',
+    content: [{ attachment: { contentType: 'application/pdf', data: b64u(pdfBytes).replace(/-/g, '+').replace(/_/g, '/') } }] };
+}
+
+// ---------- App Attestation (KTC guide, optional): ES256 JWS in Bundle.meta.extension ----------
+const ATTESTATION_EXT = 'https://cms.gov/fhir/StructureDefinition/app-attestation';
+async function buildAttestation(appKey, iss) {
+  // Exactly three claims are defined: iss, iat, jti. No exp; the SHLink's exp governs lifetime.
+  return signJwt({ iss, iat: Math.floor(Date.now() / 1000), jti: uuid() }, appKey);
+}
+
+// ---------- PatientSharedBundle ----------
+function renderLines(selected, qr) {
+  const lines = ['Patient: Jordan Alvarez, DOB 1979-03-14', 'Shared by the patient from the MyDigiRecords app on ' + new Date().toUTCString(), ''];
+  for (const k of selected) {
+    lines.push(RECORDS[k].label.toUpperCase());
+    for (const r of RECORDS[k].resources) {
+      const name = (r.code && (r.code.text || r.code.coding[0].display)) || (r.medicationCodeableConcept && r.medicationCodeableConcept.coding[0].display) || (r.vaccineCode && r.vaccineCode.coding[0].display) || (r.payor && r.payor[0].display) || r.resourceType;
+      const extra = r.dosageInstruction ? ' - ' + r.dosageInstruction[0].text : r.occurrenceDateTime ? ' - ' + r.occurrenceDateTime : r.component ? ' - ' + r.component.map(c => c.valueQuantity.value).join('/') + ' mmHg' : r.valueQuantity ? ' - ' + r.valueQuantity.value + ' ' + r.valueQuantity.unit : '';
+      lines.push('  ' + name + extra);
+    }
+    lines.push('');
+  }
+  if (qr) { lines.push('INTAKE ANSWERS'); for (const it of qr.item) { const a = it.answer[0]; lines.push('  ' + it.text + ' ' + String(Object.values(a)[0].display || Object.values(a)[0])); } }
+  return lines;
+}
+async function buildBundle({ selected, visitKey, answers, idv, appKey, appIss, includePdf = true }) {
+  const qr = buildQuestionnaireResponse(visitKey, answers || {});
+  const entries = [{ fullUrl: PATIENT_ID, resource: patient }];
+  for (const k of selected) for (const r of RECORDS[k].resources) entries.push({ fullUrl: 'urn:uuid:' + uuid(), resource: r });
+  entries.push({ fullUrl: 'urn:uuid:' + uuid(), resource: qr });
+  entries.push({ fullUrl: 'urn:uuid:' + uuid(), resource: buildProvenance(idv) });
+  let pdf = null;
+  if (includePdf) { pdf = textPdf('Pre-visit summary (patient shared)', renderLines(selected, qr)); entries.push({ fullUrl: 'urn:uuid:' + uuid(), resource: buildPdfDocRef(pdf, 'rendered') }); }
+  const attestation = await buildAttestation(appKey, appIss);
+  const bundle = { resourceType: 'Bundle', meta: { extension: [{ url: ATTESTATION_EXT, valueString: attestation }] },
+    type: 'collection', timestamp: nowIso(), entry: entries };   // no meta.profile: the guide says SHOULD NOT include it
+  return { bundle, questionnaireResponse: qr, pdf, attestation };
+}
+
+// ---------- Simulated patient-app server (hosts encrypted files, serves U and P links, audits) ----------
+function createAppServer(origin) {
+  const files = new Map(); const audit = [];
+  return {
+    origin, audit,
+    async host(bundle, { flag, exp, label, passcode }) {
+      const keyBytes = randomBytes(32);
+      const jwe = await encryptJwe(bundle, keyBytes);
+      const id = b64u(randomBytes(32));                   // 256 bits of entropy in the path
+      const rec = { id, jwe, exp, flag, attemptsLeft: passcode ? 3 : null, passcodeHash: passcode ? await sha256(passcode) : null, active: true };
+      files.set(id, rec);
+      const url = origin + '/shl/' + id;
+      const link = buildShlink({ url, keyBytes, exp, flag, label });
+      return { id, link, keyBytes, jwe };
+    },
+    // KTC route: U flag. GET {url}?recipient=... -> application/jose. No auth, CORS *.
+    directGet(id, recipient) {
+      const f = files.get(id);
+      if (!f || !f.active) return { status: 404 };
+      if (!recipient) return { status: 400, body: { error: 'recipient is required' } };
+      if (f.exp && f.exp < Math.floor(Date.now() / 1000)) return { status: 404, body: { error: 'expired' } };
+      audit.push({ at: nowIso(), id, recipient, via: 'GET (U flag)' });
+      return { status: 200, headers: { 'content-type': 'application/jose', 'access-control-allow-origin': '*' }, body: f.jwe };
+    },
+    // Base SHL route: P flag. POST {url} {recipient, passcode, embeddedLengthMax} -> manifest.
+    async manifest(id, body) {
+      const f = files.get(id);
+      if (!f || !f.active) return { status: 404 };
+      if (!body || !body.recipient) return { status: 400, body: { error: 'recipient is required' } };
+      if (f.passcodeHash) {
+        if (!body.passcode || (await sha256(body.passcode)) !== f.passcodeHash) {
+          f.attemptsLeft -= 1; if (f.attemptsLeft <= 0) f.active = false;
+          return { status: 401, body: { remainingAttempts: Math.max(0, f.attemptsLeft) } };
+        }
+      }
+      audit.push({ at: nowIso(), id, recipient: body.recipient, via: 'POST manifest (P flag)' });
+      return { status: 200, headers: { 'content-type': 'application/json' }, body: { status: 'finalized', files: [{ contentType: 'application/fhir+json', embedded: f.jwe }] } };
+    },
+    revoke(id) { const f = files.get(id); if (f) f.active = false; }
+  };
+}
+async function sha256(s) { return b64u(new Uint8Array(await crypto.subtle.digest('SHA-256', te.encode(s)))); }
+
+// ---------- Simulated EHR (receiver): capability, token endpoint, ingestion, chart ----------
+function createEhr({ name, base, clientRegistry, trustedApps, mpi, appointments, supportsOperation = true }) {
+  const chart = { intake: [], reconciliation: [], documents: [], provenanceFlags: [] };
+  const capability = { resourceType: 'CapabilityStatement', status: 'active', date: '2026-11-01', kind: 'instance', fhirVersion: '4.0.1', format: ['json'],
+    implementation: { description: name, url: base },
+    rest: [{ mode: 'server',
+      security: { service: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/restful-security-service', code: 'SMART-on-FHIR' }] }],
+        extension: [{ url: 'http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris', extension: [{ url: 'token', valueUri: base + '/oauth2/token' }, { url: 'authorize', valueUri: base + '/oauth2/authorize' }] }] },
+      resource: [
+        { type: 'DocumentReference', interaction: [{ code: 'create' }, { code: 'read' }, { code: 'search-type' }], supportedProfile: ['http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference'] },
+        { type: 'Appointment', interaction: [{ code: 'read' }, { code: 'search-type' }] },
+        { type: 'Patient', interaction: [{ code: 'read' }, { code: 'search-type' }] } ],
+      operation: supportsOperation ? [{ name: 'receive-shl', definition: 'https://mydigirecords.com/fhir/OperationDefinition/receive-shl' }] : [] }] };
+  const issuedTokens = new Map();
+  async function fetchJwks(iss) {           // in the demo, apps publish their JWKS in-memory at {iss}/.well-known/jwks.json
+    const app = trustedApps.get(iss); return app ? app.jwks : null;
+  }
+  async function resolveShlink(uri, passcode, recipient, appServer) {
+    const p = parseShlink(uri);
+    if (p.exp && p.exp < Math.floor(Date.now() / 1000)) throw new Error('SHLink expired');
+    const id = p.url.split('/shl/')[1];
+    const keyBytes = b64uDecode(p.key);
+    let jwe;
+    if ((p.flag || '').includes('P')) {
+      const r = await appServer.manifest(id, { recipient, passcode, embeddedLengthMax: 1048576 });
+      if (r.status === 401) throw new Error('passcode rejected, remainingAttempts=' + r.body.remainingAttempts);
+      if (r.status !== 200) throw new Error('manifest HTTP ' + r.status);
+      jwe = r.body.files[0].embedded;
+    } else {
+      const r = appServer.directGet(id, recipient);
+      if (r.status !== 200) throw new Error('GET HTTP ' + r.status);
+      jwe = r.body;
+    }
+    const { payload } = await decryptJwe(jwe, keyBytes);
+    return payload;
+  }
+  async function verifyAttestation(bundle) {
+    const ext = ((bundle.meta || {}).extension || []).find(e => e.url === ATTESTATION_EXT);
+    if (!ext) return { present: false, ok: false, label: 'no attestation (processing continues)' };
+    const [, p] = ext.valueString.split('.');
+    const claims = JSON.parse(td.decode(b64uDecode(p)));
+    if (!trustedApps.has(claims.iss)) return { present: true, ok: false, label: 'issuer not in trust framework app list (processing continues)', claims };
+    const jwks = await fetchJwks(claims.iss);
+    const v = await verifyJwt(ext.valueString, jwks);
+    return { present: true, ok: v.ok, label: v.ok ? 'recognized app: ' + claims.iss : 'signature failed (processing continues)', claims, header: v.header };
+  }
+  function matchPatient(pt) {
+    const dob = pt.birthDate, fam = pt.name[0].family.toLowerCase(), giv = pt.name[0].given[0].toLowerCase();
+    const hit = mpi.find(m => m.birthDate === dob && m.family.toLowerCase() === fam && m.given.toLowerCase() === giv);
+    return hit ? { matched: true, mrn: hit.mrn, score: 'exact on name + DOB' } : { matched: false };
+  }
+  function checkIal(bundle) {
+    const prov = bundle.entry.map(e => e.resource).find(r => r.resourceType === 'Provenance' && r.target.some(t => t.reference === PATIENT_ID));
+    if (!prov) return { present: false };
+    const agent = prov.agent.find(a => (a.extension || []).some(x => x.url === IAL_EXT));
+    if (!agent) return { present: true, ial: null };
+    const ext = agent.extension.find(x => x.url === IAL_EXT);
+    const get = n => (ext.extension.find(x => x.url === n) || {});
+    return { present: true, ial: get('level').valueCode, csp: get('credentialServiceProvider').valueString, verifiedAt: get('verifiedAt').valueDateTime };
+  }
+  async function file(bundle, ctx) {
+    const resources = bundle.entry.map(e => e.resource);
+    const att = await verifyAttestation(bundle);
+    const pt = resources.find(r => r.resourceType === 'Patient');
+    const match = matchPatient(pt);
+    const ial = checkIal(bundle);
+    const appt = ctx.appointmentId ? appointments.find(a => a.id === ctx.appointmentId) : null;
+    const filed = { mustPersist: [], shouldPersist: [], intake: [], documents: [], ignored: [] };
+    for (const r of resources) {
+      if (r.resourceType === 'Patient' || r.resourceType === 'Provenance') continue;
+      if (['Condition', 'MedicationRequest', 'AllergyIntolerance', 'Immunization'].includes(r.resourceType)) { filed.mustPersist.push(r); chart.reconciliation.push({ resource: r, status: 'pending clinician review', source: 'patient-shared' }); }
+      else if (r.resourceType === 'QuestionnaireResponse') { filed.intake.push(r); chart.intake.push({ resource: r, encounter: appt ? appt.encounterId : null }); }
+      else if (r.resourceType === 'DocumentReference') { filed.documents.push(r); chart.documents.push({ resource: r, encounter: appt ? appt.encounterId : null }); }
+      else { filed.shouldPersist.push(r); chart.reconciliation.push({ resource: r, status: 'pending clinician review', source: 'patient-shared' }); }
+    }
+    chart.provenanceFlags.push({ at: nowIso(), attestation: att.label, identity: ial.ial ? ial.ial + ' via ' + ial.csp : 'none asserted', match, encounter: appt ? appt.encounterId : 'unbound (walk-in queue)' });
+    return { attestation: att, match, ial, appointment: appt, filed };
+  }
+  return {
+    name, base, capability, chart,
+    async token(form, appJwksByClientId) {
+      // SMART Backend Services: grant_type=client_credentials + JWT client assertion (RFC 7523), verified against the client's registered JWKS
+      if (form.grant_type !== 'client_credentials') return { status: 400, body: { error: 'unsupported_grant_type' } };
+      if (form.client_assertion_type !== 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer') return { status: 400, body: { error: 'invalid_client' } };
+      const [, p] = form.client_assertion.split('.');
+      const claims = JSON.parse(td.decode(b64uDecode(p)));
+      const reg = clientRegistry.get(claims.iss);
+      if (!reg || claims.sub !== claims.iss) return { status: 401, body: { error: 'invalid_client', error_description: 'unknown client_id' } };
+      if (claims.aud !== base + '/oauth2/token') return { status: 401, body: { error: 'invalid_client', error_description: 'aud must be the token endpoint' } };
+      if (claims.exp > Math.floor(Date.now() / 1000) + 300) return { status: 401, body: { error: 'invalid_client', error_description: 'exp more than 5 minutes ahead' } };
+      const v = await verifyJwt(form.client_assertion, reg.jwks);
+      if (!v.ok) return { status: 401, body: { error: 'invalid_client', error_description: v.reason } };
+      const requested = form.scope.split(' ');
+      const granted = requested.filter(s => reg.scopes.includes(s));
+      if (!granted.length) return { status: 400, body: { error: 'invalid_scope' } };
+      const token = 'ehr_' + b64u(randomBytes(24));
+      issuedTokens.set(token, { client: claims.iss, scopes: granted, exp: Date.now() + 300000 });
+      return { status: 200, body: { access_token: token, token_type: 'bearer', expires_in: 300, scope: granted.join(' ') } };
+    },
+    authorize(bearer, needScope) {
+      const t = issuedTokens.get(bearer);
+      if (!t || t.exp < Date.now()) return { ok: false, status: 401 };
+      if (!t.scopes.includes(needScope)) return { ok: false, status: 403 };
+      return { ok: true };
+    },
+    // Proposed operation (MDR proposal): POST [base]/$receive-shl with Parameters {shlink, passcode?, appointment?}
+    async receiveShl(bearer, params, appServer) {
+      const auth = this.authorize(bearer, 'system/DocumentReference.c');
+      if (!auth.ok) return { status: auth.status, body: outcome('error', auth.status === 401 ? 'login' : 'forbidden', 'token rejected') };
+      const get = n => (params.parameter.find(p => p.name === n) || {});
+      try {
+        const bundle = await resolveShlink(get('shlink').valueString, get('passcode').valueString, name, appServer);
+        const result = await file(bundle, { appointmentId: get('appointment').valueString });
+        return { status: 200, body: outcome('information', 'informational', 'Pre-check-in received and filed: ' + result.filed.mustPersist.length + ' resources to reconciliation, ' + result.filed.intake.length + ' intake form(s), ' + result.filed.documents.length + ' document(s)'), result };
+      } catch (e) { return { status: 422, body: outcome('error', 'processing', e.message) }; }
+    },
+    // Standards-only path: POST [base]/DocumentReference whose attachment.url is the shlink. Only works for links without a passcode.
+    async createDocumentReference(bearer, docRef, appServer) {
+      const auth = this.authorize(bearer, 'system/DocumentReference.c');
+      if (!auth.ok) return { status: auth.status, body: outcome('error', 'login', 'token rejected') };
+      try {
+        const url = docRef.content[0].attachment.url;
+        const p = parseShlink(url);
+        if ((p.flag || '').includes('P')) throw new Error('DocumentReference has no field for a passcode; use the operation or a link without P');
+        const apptId = (docRef.context && docRef.context.related && docRef.context.related[0] && docRef.context.related[0].reference || '').split('/')[1];
+        const bundle = await resolveShlink(url, undefined, name, appServer);
+        const result = await file(bundle, { appointmentId: apptId });
+        return { status: 201, headers: { location: base + '/DocumentReference/' + uuid() }, body: outcome('information', 'informational', 'DocumentReference created; linked bundle fetched and filed'), result };
+      } catch (e) { return { status: 422, body: outcome('error', 'processing', e.message) }; }
+    },
+    async scanQr(uri, appServer) {       // desk scan: KTC primary workflow
+      try { const bundle = await resolveShlink(uri, undefined, name, appServer); const result = await file(bundle, {}); return { ok: true, result, bundle }; }
+      catch (e) { return { ok: false, error: e.message }; }
+    }
+  };
+}
+function outcome(severity, code, text) { return { resourceType: 'OperationOutcome', issue: [{ severity, code, diagnostics: text }] }; }
+
+// ---------- App side: SMART Backend Services client assertion, capability gate, route choice ----------
+async function clientAssertion(clientKey, clientId, tokenEndpoint) {
+  const now = Math.floor(Date.now() / 1000);
+  return signJwt({ iss: clientId, sub: clientId, aud: tokenEndpoint, exp: now + 300, jti: uuid() }, clientKey, { typ: 'JWT' });
+}
+function capabilityGate(cap) {
+  const rest = cap.rest[0];
+  const tokenExt = (((rest.security || {}).extension || []).find(e => e.url === 'http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris') || { extension: [] }).extension;
+  const token = (tokenExt.find(e => e.url === 'token') || {}).valueUri;
+  const docRef = rest.resource.find(r => r.type === 'DocumentReference');
+  const canCreateDocRef = Boolean(docRef && docRef.interaction.some(i => i.code === 'create'));
+  const hasOp = (rest.operation || []).some(o => o.name === 'receive-shl');
+  return { tokenEndpoint: token, canCreateDocRef, hasReceiveShl: hasOp, inboundSupported: Boolean(token) && (canCreateDocRef || hasOp) };
+}
+function chooseRoute({ connected, gate, pin }) {
+  if (!connected) return { route: 'qr', reason: 'no EHR integration for this practice' };
+  if (!gate.inboundSupported) return { route: 'qr', reason: 'EHR advertises no inbound path' };
+  if (pin && !gate.hasReceiveShl) return { route: 'qr', reason: 'PIN set but EHR has no $receive-shl; DocumentReference cannot carry a passcode' };
+  return { route: 'ehr', reason: gate.hasReceiveShl ? '$receive-shl advertised' : 'DocumentReference create advertised' };
+}
+
+// ---------- Device calendar (stand-in): visits the patient put in the phone calendar ----------
+const DEVICE_CALENDAR = [
+  { title: 'Dr. Okafor, annual physical', start: '2026-11-18T09:30:00-06:00', location: 'Prairie Ridge Family Medicine, 11200 Nall Ave, Leawood KS', notes: '' },
+  { title: 'Dentist, cleaning', start: '2026-11-21T14:00:00-06:00', location: 'Mission Hills Dental, Overland Park KS', notes: '' },
+  { title: 'Soccer, Kai', start: '2026-11-15T10:00:00-06:00', location: 'Swope Park', notes: '' }
+];
+function scanDeviceCalendar(events, lookaheadDays = 30) {
+  const kw = /(dr\.?|doctor|dentist|dental|clinic|physical|exam|appointment|appt|ortho|eye|optom|ophthalm)/i;
+  const now = Date.now(), horizon = now + lookaheadDays * 86400000;
+  return events.filter(e => { const t = Date.parse(e.start); return t > now && t < horizon && (kw.test(e.title) || kw.test(e.location)); })
+    .map(e => ({ ...e, guess: /dent/i.test(e.title + e.location) ? 'dental' : /ortho/i.test(e.title) ? 'ortho' : /eye|optom|ophthalm/i.test(e.title) ? 'eye' : 'primary', confidence: 'from calendar title; patient confirms' }));
+}
+
+root.PCI = { b64u, b64uDecode, b64uJson, randomBytes, uuid, nowIso, JWE_HEADER, JWE_HEADER_B64, encryptJwe, decryptJwe, generateSigningKey, signJwt, verifyJwt, buildShlink, parseShlink, textPdf,
+  patient, PATIENT_ID, RECORDS, VISITS, recommend, QUESTIONNAIRES, buildQuestionnaire, buildQuestionnaireResponse, buildProvenance, IAL_EXT, buildPdfDocRef, ATTESTATION_EXT, buildAttestation, buildBundle, renderLines,
+  createAppServer, createEhr, clientAssertion, capabilityGate, chooseRoute, DEVICE_CALENDAR, scanDeviceCalendar, sha256 };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+</script>
+<script>/* MDR app-initiated pre-check-in: protocol core.
+ * Plain script, no framework. Runs in a browser and in Node 18+ (globalThis.crypto).
+ * Everything cryptographic here is real: AES-256-GCM JWE (SHL STU1), ES256 App Attestation
+ * (KTC guide v0.10.2), ES384 client assertion (SMART Backend Services).
+ */
+(function (root) {
+'use strict';
+
+const te = new TextEncoder();
+const td = new TextDecoder();
+
+// ---------- base64url ----------
+function b64u(bytes) {
+  let s = '';
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function b64uDecode(str) {
+  const pad = str.length % 4 === 0 ? '' : '='.repeat(4 - (str.length % 4));
+  const bin = atob(str.replace(/-/g, '+').replace(/_/g, '/') + pad);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+function b64uJson(obj) { return b64u(te.encode(JSON.stringify(obj))); }
+function randomBytes(n) { return crypto.getRandomValues(new Uint8Array(n)); }
+function uuid() { return crypto.randomUUID(); }
+function nowIso() { return new Date().toISOString(); }
+
+// ---------- JWE: alg "dir", enc "A256GCM", cty "application/fhir+json"  (SHL STU1 §Encrypting) ----------
+const JWE_HEADER = { alg: 'dir', enc: 'A256GCM', cty: 'application/fhir+json' };
+const JWE_HEADER_B64 = b64uJson(JWE_HEADER);
+
+async function encryptJwe(obj, keyBytes) {
+  const plaintext = te.encode(JSON.stringify(obj));
+  const iv = randomBytes(12);                       // unique nonce per encryption
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['encrypt']);
+  const aad = te.encode(JWE_HEADER_B64);            // AAD = ASCII(BASE64URL(protected header))
+  const out = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: aad, tagLength: 128 }, key, plaintext));
+  const ct = out.slice(0, out.length - 16), tag = out.slice(out.length - 16);
+  return [JWE_HEADER_B64, '', b64u(iv), b64u(ct), b64u(tag)].join('.');
+}
+async function decryptJwe(compact, keyBytes) {
+  const [h, ek, iv, ct, tag] = compact.split('.');
+  if (ek !== '') throw new Error('alg dir requires an empty encrypted key');
+  const header = JSON.parse(td.decode(b64uDecode(h)));
+  if (header.alg !== 'dir' || header.enc !== 'A256GCM') throw new Error('unexpected JWE header');
+  const key = await crypto.subtle.importKey('raw', keyBytes, 'AES-GCM', false, ['decrypt']);
+  const c = b64uDecode(ct), t = b64uDecode(tag);
+  const joined = new Uint8Array(c.length + t.length); joined.set(c); joined.set(t, c.length);
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64uDecode(iv), additionalData: te.encode(h), tagLength: 128 }, key, joined);
+  return { header, payload: JSON.parse(td.decode(pt)) };
+}
+
+// ---------- JWS (compact) with ECDSA ----------
+const CURVES = { ES256: { namedCurve: 'P-256', hash: 'SHA-256' }, ES384: { namedCurve: 'P-384', hash: 'SHA-384' } };
+async function generateSigningKey(alg) {
+  const kp = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: CURVES[alg].namedCurve }, true, ['sign', 'verify']);
+  const jwk = await crypto.subtle.exportKey('jwk', kp.publicKey);
+  delete jwk.key_ops; delete jwk.ext;
+  const kid = b64u(new Uint8Array(await crypto.subtle.digest('SHA-256', te.encode(JSON.stringify({ crv: jwk.crv, kty: jwk.kty, x: jwk.x, y: jwk.y }))))).slice(0, 16);
+  return { alg, privateKey: kp.privateKey, publicJwk: { ...jwk, kid, use: 'sig', alg } };
+}
+async function signJwt(claims, keyPair, header = {}) {
+  const alg = keyPair.alg;
+  const h = { alg, kid: keyPair.publicJwk.kid, ...header };
+  const input = b64uJson(h) + '.' + b64uJson(claims);
+  const sig = new Uint8Array(await crypto.subtle.sign({ name: 'ECDSA', hash: CURVES[alg].hash }, keyPair.privateKey, te.encode(input)));
+  return input + '.' + b64u(sig);
+}
+async function verifyJwt(jwt, jwks) {
+  const [h, p, s] = jwt.split('.');
+  const header = JSON.parse(td.decode(b64uDecode(h)));
+  const jwk = (jwks.keys || []).find(k => k.kid === header.kid);
+  if (!jwk) return { ok: false, reason: 'kid ' + header.kid + ' not in JWKS', header };
+  if (jwk.kty !== 'EC') return { ok: false, reason: 'key is not EC', header };
+  const curve = CURVES[header.alg];
+  if (!curve || jwk.crv !== curve.namedCurve) return { ok: false, reason: 'alg/curve mismatch', header };
+  const key = await crypto.subtle.importKey('jwk', { kty: jwk.kty, crv: jwk.crv, x: jwk.x, y: jwk.y }, { name: 'ECDSA', namedCurve: jwk.crv }, false, ['verify']);
+  const ok = await crypto.subtle.verify({ name: 'ECDSA', hash: curve.hash }, key, b64uDecode(s), te.encode(h + '.' + p));
+  return { ok, reason: ok ? 'signature valid' : 'signature invalid', header, claims: JSON.parse(td.decode(b64uDecode(p))) };
+}
+
+// ---------- SMART Health Link payload (SHL STU1 §Payload) ----------
+function buildShlink({ url, keyBytes, exp, flag, label }) {
+  if (url.length > 128) throw new Error('SHL url SHALL NOT exceed 128 characters');
+  if (flag && flag.includes('U') && flag.includes('P')) throw new Error('flag U SHALL NOT be used in combination with P');
+  const payload = { url, flag, key: b64u(keyBytes), exp, label };
+  if (!flag) delete payload.flag;
+  if (label && label.length > 80) throw new Error('label SHALL be no longer than 80 characters');
+  return { payload, uri: 'shlink:/' + b64uJson(payload) };
+}
+function parseShlink(uri) {
+  const m = /shlink:\/([A-Za-z0-9_-]+)/.exec(uri);     // bare URI or viewer-prefixed URL; KTC says accept both
+  if (!m) throw new Error('not a shlink');
+  return JSON.parse(td.decode(b64uDecode(m[1])));
+}
+
+// ---------- Minimal PDF writer (text only, Helvetica) ----------
+function textPdf(title, lines) {
+  const esc = s => String(s).replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+  let y = 760;
+  let content = 'BT /F1 14 Tf 50 ' + y + ' Td (' + esc(title) + ') Tj ET\n';
+  y -= 26;
+  for (const ln of lines) {
+    if (y < 50) break;
+    content += 'BT /F1 10 Tf 50 ' + y + ' Td (' + esc(ln) + ') Tj ET\n';
+    y -= 14;
+  }
+  const objs = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>',
+    '<< /Length ' + te.encode(content).length + ' >>\nstream\n' + content + 'endstream',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'
+  ];
+  let pdf = '%PDF-1.4\n%âãÏÓ\n';
+  const offsets = [];
+  objs.forEach((o, i) => { offsets.push(te.encode(pdf).length); pdf += (i + 1) + ' 0 obj\n' + o + '\nendobj\n'; });
+  const xref = te.encode(pdf).length;
+  pdf += 'xref\n0 ' + (objs.length + 1) + '\n0000000000 65535 f \n';
+  for (const off of offsets) pdf += String(off).padStart(10, '0') + ' 00000 n \n';
+  pdf += 'trailer\n<< /Size ' + (objs.length + 1) + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n';
+  return te.encode(pdf);
+}
+
+// ---------- Sample longitudinal data held by the app (fictional patient) ----------
+const PATIENT_ID = 'urn:uuid:7b1c2d7e-5a0f-4c3e-9b2a-1f6d8e9c0a11';
+const patient = {
+  resourceType: 'Patient', id: '7b1c2d7e-5a0f-4c3e-9b2a-1f6d8e9c0a11',
+  identifier: [{ system: 'https://mydigirecords.com/fhir/patient-id', value: 'MDR-204117' }],
+  name: [{ family: 'Alvarez', given: ['Jordan'] }], gender: 'female', birthDate: '1979-03-14',
+  telecom: [{ system: 'phone', value: '913-555-0142', use: 'mobile' }],
+  address: [{ line: ['4410 W 118th St'], city: 'Leawood', state: 'KS', postalCode: '66211' }]
+};
+const RECORDS = {
+  allergies: { label: 'Allergies and intolerances', profile: 'US Core AllergyIntolerance', ktc: 'SHALL persist', resources: [
+    { resourceType: 'AllergyIntolerance', id: 'al-1', clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical', code: 'active' }] }, verificationStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-verification', code: 'confirmed' }] }, code: { coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '7980', display: 'Penicillin G' }], text: 'Penicillin' }, patient: { reference: PATIENT_ID }, reaction: [{ manifestation: [{ text: 'Hives' }], severity: 'moderate' }] },
+    { resourceType: 'AllergyIntolerance', id: 'al-2', clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical', code: 'active' }] }, code: { coding: [{ system: 'http://snomed.info/sct', code: '300913006', display: 'Shellfish allergy' }], text: 'Shellfish' }, patient: { reference: PATIENT_ID } }
+  ] },
+  medications: { label: 'Medications', profile: 'US Core MedicationRequest', ktc: 'SHALL persist', resources: [
+    { resourceType: 'MedicationRequest', id: 'mr-1', status: 'active', intent: 'order', medicationCodeableConcept: { coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '314076', display: 'lisinopril 10 MG Oral Tablet' }] }, subject: { reference: PATIENT_ID }, authoredOn: '2026-02-11', requester: { display: 'Dr. R. Okafor' }, dosageInstruction: [{ text: '1 tablet by mouth daily' }] },
+    { resourceType: 'MedicationRequest', id: 'mr-2', status: 'active', intent: 'order', medicationCodeableConcept: { coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '861007', display: 'metformin hydrochloride 500 MG Oral Tablet' }] }, subject: { reference: PATIENT_ID }, authoredOn: '2026-02-11', requester: { display: 'Dr. R. Okafor' }, dosageInstruction: [{ text: '1 tablet by mouth twice daily with meals' }] },
+    { resourceType: 'MedicationRequest', id: 'mr-3', status: 'active', intent: 'order', medicationCodeableConcept: { coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '617310', display: 'atorvastatin 20 MG Oral Tablet' }] }, subject: { reference: PATIENT_ID }, authoredOn: '2026-02-11', requester: { display: 'Dr. R. Okafor' }, dosageInstruction: [{ text: '1 tablet by mouth at bedtime' }] }
+  ] },
+  conditions: { label: 'Problems and health concerns', profile: 'US Core Condition', ktc: 'SHALL persist', resources: [
+    { resourceType: 'Condition', id: 'c-1', clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-clinical', code: 'active' }] }, category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-category', code: 'problem-list-item' }] }], code: { coding: [{ system: 'http://snomed.info/sct', code: '44054006', display: 'Diabetes mellitus type 2' }] }, subject: { reference: PATIENT_ID }, onsetDateTime: '2019-06' },
+    { resourceType: 'Condition', id: 'c-2', clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-clinical', code: 'active' }] }, category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-category', code: 'problem-list-item' }] }], code: { coding: [{ system: 'http://snomed.info/sct', code: '38341003', display: 'Hypertensive disorder' }] }, subject: { reference: PATIENT_ID }, onsetDateTime: '2017-01' },
+    { resourceType: 'Condition', id: 'c-3', clinicalStatus: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-clinical', code: 'active' }] }, category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/condition-category', code: 'problem-list-item' }] }], code: { coding: [{ system: 'http://snomed.info/sct', code: '55822004', display: 'Hyperlipidemia' }] }, subject: { reference: PATIENT_ID } }
+  ] },
+  immunizations: { label: 'Immunizations', profile: 'US Core Immunization', ktc: 'SHALL persist', resources: [
+    { resourceType: 'Immunization', id: 'im-1', status: 'completed', vaccineCode: { coding: [{ system: 'http://hl7.org/fhir/sid/cvx', code: '140', display: 'Influenza, seasonal, injectable, preservative free' }] }, patient: { reference: PATIENT_ID }, occurrenceDateTime: '2026-10-03', primarySource: true },
+    { resourceType: 'Immunization', id: 'im-2', status: 'completed', vaccineCode: { coding: [{ system: 'http://hl7.org/fhir/sid/cvx', code: '115', display: 'Tdap' }] }, patient: { reference: PATIENT_ID }, occurrenceDateTime: '2021-08-19', primarySource: true }
+  ] },
+  vitals: { label: 'Vital signs (latest)', profile: 'US Core Vital Signs (Observation)', ktc: 'SHOULD persist', resources: [
+    { resourceType: 'Observation', id: 'ob-bp', status: 'final', category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'vital-signs' }] }], code: { coding: [{ system: 'http://loinc.org', code: '85354-9', display: 'Blood pressure panel with all children optional' }] }, subject: { reference: PATIENT_ID }, effectiveDateTime: '2026-11-09T07:40:00-06:00', component: [
+      { code: { coding: [{ system: 'http://loinc.org', code: '8480-6', display: 'Systolic blood pressure' }] }, valueQuantity: { value: 128, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' } },
+      { code: { coding: [{ system: 'http://loinc.org', code: '8462-4', display: 'Diastolic blood pressure' }] }, valueQuantity: { value: 82, unit: 'mmHg', system: 'http://unitsofmeasure.org', code: 'mm[Hg]' } } ] },
+    { resourceType: 'Observation', id: 'ob-wt', status: 'final', category: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/observation-category', code: 'vital-signs' }] }], code: { coding: [{ system: 'http://loinc.org', code: '29463-7', display: 'Body weight' }] }, subject: { reference: PATIENT_ID }, effectiveDateTime: '2026-11-09T07:40:00-06:00', valueQuantity: { value: 84, unit: 'kg', system: 'http://unitsofmeasure.org', code: 'kg' } }
+  ] },
+  insurance: { label: 'Insurance card', profile: 'CARIN Digital Insurance Card Coverage', ktc: 'SHOULD persist', resources: [
+    { resourceType: 'Coverage', id: 'cov-1', status: 'active', subscriberId: 'KSB-88213904', beneficiary: { reference: PATIENT_ID }, relationship: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/subscriber-relationship', code: 'self' }] }, payor: [{ display: 'Sunflower Health Plan' }], class: [{ type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/coverage-class', code: 'group' }] }, value: 'GRP-55120', name: 'Employer PPO' }] }
+  ] }
+};
+
+// ---------- Visit types: suggested records, with the clinical reason ----------
+const VISITS = {
+  primary: { label: 'Primary care, annual visit', specialty: 'Family medicine', suggest: {
+    allergies: 'Needed before any prescription is written or renewed.',
+    medications: 'Reconciliation against the chart is the first thing a PCP does.',
+    conditions: 'Active problem list drives the visit agenda and screening orders.',
+    immunizations: 'Annual visit is where gaps (flu, Tdap, pneumococcal) get closed.',
+    vitals: 'Home blood pressure and weight trend between visits are more useful than one reading in clinic.',
+    insurance: 'Front desk verifies eligibility before the visit.' } },
+  ortho: { label: 'Orthopedics, knee pain', specialty: 'Orthopedic surgery', suggest: {
+    allergies: 'Contrast, latex and NSAID reactions change imaging and injection plans.',
+    medications: 'Anticoagulants and NSAIDs matter for injections and any surgery.',
+    conditions: 'Diabetes affects wound healing and infection risk for procedures.',
+    insurance: 'Imaging and procedures need eligibility and prior auth.' },
+    off: { immunizations: 'Rarely needed for an ortho consult.', vitals: 'Clinic will take its own.' } },
+  dental: { label: 'Dental, routine exam', specialty: 'General dentistry', suggest: {
+    allergies: 'Local anesthetic, latex and antibiotic allergies are asked at every dental visit.',
+    medications: 'Bisphosphonates and anticoagulants change what a dentist can do that day.',
+    conditions: 'Diabetes and cardiac history drive periodontal care and antibiotic prophylaxis.',
+    vitals: 'Dental offices screen blood pressure before anesthesia.',
+    insurance: 'Dental benefit check at the desk.' },
+    off: { immunizations: 'Not part of a dental intake.' } },
+  eye: { label: 'Eye care, diabetic eye exam', specialty: 'Ophthalmology', suggest: {
+    conditions: 'Diabetes duration sets the retinopathy screening interval.',
+    medications: 'Steroids and hydroxychloroquine have eye effects the doctor checks for.',
+    allergies: 'Dilating drop and iodine reactions.',
+    vitals: 'Blood pressure matters for retinal vascular findings.',
+    insurance: 'Medical vs vision benefit routing.' },
+    off: { immunizations: 'Not needed for an eye exam.' } }
+};
+function recommend(visitKey) {
+  const v = VISITS[visitKey];
+  return Object.keys(RECORDS).map(k => ({ key: k, label: RECORDS[k].label, profile: RECORDS[k].profile, ktc: RECORDS[k].ktc,
+    suggested: Boolean(v.suggest[k]), reason: v.suggest[k] || (v.off && v.off[k]) || 'Not suggested for this visit type.' }));
+}
+
+// ---------- Questionnaire + US Core 9.0.0 QuestionnaireResponse (SDC based) ----------
+const QUESTIONNAIRES = {
+  primary: { url: 'https://mydigirecords.com/fhir/Questionnaire/precheckin-primary-care', version: '1.0', items: [
+    { linkId: 'reason', text: 'What is the main reason for this visit?', type: 'string', answer: 'Annual check-up; refill lisinopril' },
+    { linkId: 'new-symptoms', text: 'Any new symptoms since your last visit?', type: 'string', answer: 'Occasional headaches in the afternoon' },
+    { linkId: 'med-changes', text: 'Have you started, stopped, or changed any medicines?', type: 'boolean', answer: false },
+    { linkId: 'tobacco', text: 'Do you currently use tobacco?', type: 'boolean', answer: false },
+    { linkId: 'phq2', text: 'Over the past two weeks, how often have you felt down, depressed, or hopeless?', type: 'choice', answer: 'Not at all' } ] },
+  ortho: { url: 'https://mydigirecords.com/fhir/Questionnaire/precheckin-orthopedics', version: '1.0', items: [
+    { linkId: 'reason', text: 'Which joint, and what happened?', type: 'string', answer: 'Right knee, pain climbing stairs for 6 weeks, no injury' },
+    { linkId: 'pain', text: 'Pain today, 0 to 10', type: 'integer', answer: 5 },
+    { linkId: 'prior-imaging', text: 'Any X-ray or MRI of this joint already?', type: 'boolean', answer: false },
+    { linkId: 'blood-thinner', text: 'Do you take a blood thinner?', type: 'boolean', answer: false } ] },
+  dental: { url: 'https://mydigirecords.com/fhir/Questionnaire/precheckin-dental', version: '1.0', items: [
+    { linkId: 'reason', text: 'Reason for visit', type: 'string', answer: 'Routine cleaning and exam' },
+    { linkId: 'last-cleaning', text: 'When was your last cleaning?', type: 'date', answer: '2026-04-22' },
+    { linkId: 'bleeding-gums', text: 'Do your gums bleed when you brush?', type: 'boolean', answer: true },
+    { linkId: 'bisphosphonate', text: 'Have you ever taken a bone-strengthening medicine (bisphosphonate)?', type: 'boolean', answer: false } ] },
+  eye: { url: 'https://mydigirecords.com/fhir/Questionnaire/precheckin-eye', version: '1.0', items: [
+    { linkId: 'reason', text: 'Reason for visit', type: 'string', answer: 'Yearly diabetic eye exam' },
+    { linkId: 'vision-change', text: 'Any change in vision, floaters, or flashes?', type: 'boolean', answer: false },
+    { linkId: 'driver', text: 'Will someone drive you home after dilation?', type: 'boolean', answer: true },
+    { linkId: 'last-a1c', text: 'Most recent A1c, if you know it', type: 'string', answer: '6.9% (Sept 2026)' } ] }
+};
+function buildQuestionnaire(visitKey) {
+  const q = QUESTIONNAIRES[visitKey];
+  return { resourceType: 'Questionnaire', url: q.url, version: q.version, status: 'active', title: VISITS[visitKey].label + ' pre-visit intake',
+    item: q.items.map(i => ({ linkId: i.linkId, text: i.text, type: i.type })) };
+}
+function buildQuestionnaireResponse(visitKey, answers) {
+  const q = QUESTIONNAIRES[visitKey];
+  const val = (type, a) => type === 'boolean' ? { valueBoolean: a } : type === 'integer' ? { valueInteger: a } : type === 'date' ? { valueDate: a } : type === 'choice' ? { valueCoding: { display: a } } : { valueString: a };
+  return { resourceType: 'QuestionnaireResponse', id: 'qr-' + visitKey,
+    questionnaire: q.url + '|' + q.version,                 // SDC: canonical of the form being answered (required)
+    status: 'completed', subject: { reference: PATIENT_ID }, authored: nowIso(),
+    author: { reference: PATIENT_ID }, source: { reference: PATIENT_ID },   // US Core: author/source carry USCDI provenance author
+    item: q.items.map(i => ({ linkId: i.linkId, text: i.text, answer: [val(i.type, answers[i.linkId] !== undefined ? answers[i.linkId] : i.answer)] })) };
+}
+
+// ---------- Provenance with identity assurance (MDR proposal; not defined in any published IG) ----------
+const IAL_EXT = 'https://mydigirecords.com/fhir/StructureDefinition/identity-assurance';
+function buildProvenance(idv) {
+  return { resourceType: 'Provenance', id: 'prov-idv',
+    target: [{ reference: PATIENT_ID }], recorded: idv.verifiedAt,
+    activity: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-DataOperation', code: 'CREATE' }] },
+    agent: [
+      { type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/provenance-participant-type', code: 'author' }] }, who: { reference: PATIENT_ID } },
+      { type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/provenance-participant-type', code: 'verifier' }] }, who: { display: idv.csp },
+        extension: [{ url: IAL_EXT, extension: [
+          { url: 'level', valueCode: idv.ial },                       // NIST SP 800-63-3 IAL label; no HL7 code system exists for this today
+          { url: 'credentialServiceProvider', valueString: idv.csp },
+          { url: 'verifiedAt', valueDateTime: idv.verifiedAt },
+          { url: 'verifiedAttributes', valueString: 'name, birthDate, address' } ] }] } ] };
+}
+
+// ---------- PatientSharedDocumentReference (KTC guide profile) ----------
+function buildPdfDocRef(pdfBytes, kind) {
+  const type = kind === 'rendered' ? { system: 'http://loinc.org', code: '60591-5', display: 'Patient summary Document' }
+                                   : { system: 'http://loinc.org', code: '51855-5', display: 'Patient Note' };
+  return { resourceType: 'DocumentReference', id: 'doc-' + kind,
+    meta: { security: [{ system: 'http://terminology.hl7.org/CodeSystem/v3-ObservationValue', code: 'PATAST', display: 'patient asserted' }] },
+    status: 'current', type: { coding: [type] },
+    category: [{ coding: [{ system: 'https://cms.gov/fhir/CodeSystem/patient-shared-category', code: 'patient-shared', display: 'Patient-Shared' }] }],
+    subject: { reference: PATIENT_ID }, author: [{ reference: PATIENT_ID }], date: nowIso(),
+    description: kind === 'rendered' ? 'FHIR-Rendered PDF of this bundle' : 'Patient story',
+    content: [{ attachment: { contentType: 'application/pdf', data: b64u(pdfBytes).replace(/-/g, '+').replace(/_/g, '/') } }] };
+}
+
+// ---------- App Attestation (KTC guide, optional): ES256 JWS in Bundle.meta.extension ----------
+const ATTESTATION_EXT = 'https://cms.gov/fhir/StructureDefinition/app-attestation';
+async function buildAttestation(appKey, iss) {
+  // Exactly three claims are defined: iss, iat, jti. No exp; the SHLink's exp governs lifetime.
+  return signJwt({ iss, iat: Math.floor(Date.now() / 1000), jti: uuid() }, appKey);
+}
+
+// ---------- PatientSharedBundle ----------
+function renderLines(selected, qr) {
+  const lines = ['Patient: Jordan Alvarez, DOB 1979-03-14', 'Shared by the patient from the MyDigiRecords app on ' + new Date().toUTCString(), ''];
+  for (const k of selected) {
+    lines.push(RECORDS[k].label.toUpperCase());
+    for (const r of RECORDS[k].resources) {
+      const name = (r.code && (r.code.text || r.code.coding[0].display)) || (r.medicationCodeableConcept && r.medicationCodeableConcept.coding[0].display) || (r.vaccineCode && r.vaccineCode.coding[0].display) || (r.payor && r.payor[0].display) || r.resourceType;
+      const extra = r.dosageInstruction ? ' - ' + r.dosageInstruction[0].text : r.occurrenceDateTime ? ' - ' + r.occurrenceDateTime : r.component ? ' - ' + r.component.map(c => c.valueQuantity.value).join('/') + ' mmHg' : r.valueQuantity ? ' - ' + r.valueQuantity.value + ' ' + r.valueQuantity.unit : '';
+      lines.push('  ' + name + extra);
+    }
+    lines.push('');
+  }
+  if (qr) { lines.push('INTAKE ANSWERS'); for (const it of qr.item) { const a = it.answer[0]; lines.push('  ' + it.text + ' ' + String(Object.values(a)[0].display || Object.values(a)[0])); } }
+  return lines;
+}
+async function buildBundle({ selected, visitKey, answers, idv, appKey, appIss, includePdf = true }) {
+  const qr = buildQuestionnaireResponse(visitKey, answers || {});
+  const entries = [{ fullUrl: PATIENT_ID, resource: patient }];
+  for (const k of selected) for (const r of RECORDS[k].resources) entries.push({ fullUrl: 'urn:uuid:' + uuid(), resource: r });
+  entries.push({ fullUrl: 'urn:uuid:' + uuid(), resource: qr });
+  entries.push({ fullUrl: 'urn:uuid:' + uuid(), resource: buildProvenance(idv) });
+  let pdf = null;
+  if (includePdf) { pdf = textPdf('Pre-visit summary (patient shared)', renderLines(selected, qr)); entries.push({ fullUrl: 'urn:uuid:' + uuid(), resource: buildPdfDocRef(pdf, 'rendered') }); }
+  const attestation = await buildAttestation(appKey, appIss);
+  const bundle = { resourceType: 'Bundle', meta: { extension: [{ url: ATTESTATION_EXT, valueString: attestation }] },
+    type: 'collection', timestamp: nowIso(), entry: entries };   // no meta.profile: the guide says SHOULD NOT include it
+  return { bundle, questionnaireResponse: qr, pdf, attestation };
+}
+
+// ---------- Simulated patient-app server (hosts encrypted files, serves U and P links, audits) ----------
+function createAppServer(origin) {
+  const files = new Map(); const audit = [];
+  return {
+    origin, audit,
+    async host(bundle, { flag, exp, label, passcode }) {
+      const keyBytes = randomBytes(32);
+      const jwe = await encryptJwe(bundle, keyBytes);
+      const id = b64u(randomBytes(32));                   // 256 bits of entropy in the path
+      const rec = { id, jwe, exp, flag, attemptsLeft: passcode ? 3 : null, passcodeHash: passcode ? await sha256(passcode) : null, active: true };
+      files.set(id, rec);
+      const url = origin + '/shl/' + id;
+      const link = buildShlink({ url, keyBytes, exp, flag, label });
+      return { id, link, keyBytes, jwe };
+    },
+    // KTC route: U flag. GET {url}?recipient=... -> application/jose. No auth, CORS *.
+    directGet(id, recipient) {
+      const f = files.get(id);
+      if (!f || !f.active) return { status: 404 };
+      if (!recipient) return { status: 400, body: { error: 'recipient is required' } };
+      if (f.exp && f.exp < Math.floor(Date.now() / 1000)) return { status: 404, body: { error: 'expired' } };
+      audit.push({ at: nowIso(), id, recipient, via: 'GET (U flag)' });
+      return { status: 200, headers: { 'content-type': 'application/jose', 'access-control-allow-origin': '*' }, body: f.jwe };
+    },
+    // Base SHL route: P flag. POST {url} {recipient, passcode, embeddedLengthMax} -> manifest.
+    async manifest(id, body) {
+      const f = files.get(id);
+      if (!f || !f.active) return { status: 404 };
+      if (!body || !body.recipient) return { status: 400, body: { error: 'recipient is required' } };
+      if (f.passcodeHash) {
+        if (!body.passcode || (await sha256(body.passcode)) !== f.passcodeHash) {
+          f.attemptsLeft -= 1; if (f.attemptsLeft <= 0) f.active = false;
+          return { status: 401, body: { remainingAttempts: Math.max(0, f.attemptsLeft) } };
+        }
+      }
+      audit.push({ at: nowIso(), id, recipient: body.recipient, via: 'POST manifest (P flag)' });
+      return { status: 200, headers: { 'content-type': 'application/json' }, body: { status: 'finalized', files: [{ contentType: 'application/fhir+json', embedded: f.jwe }] } };
+    },
+    revoke(id) { const f = files.get(id); if (f) f.active = false; }
+  };
+}
+async function sha256(s) { return b64u(new Uint8Array(await crypto.subtle.digest('SHA-256', te.encode(s)))); }
+
+// ---------- Simulated EHR (receiver): capability, token endpoint, ingestion, chart ----------
+function createEhr({ name, base, clientRegistry, trustedApps, mpi, appointments, supportsOperation = true }) {
+  const chart = { intake: [], reconciliation: [], documents: [], provenanceFlags: [] };
+  const capability = { resourceType: 'CapabilityStatement', status: 'active', date: '2026-11-01', kind: 'instance', fhirVersion: '4.0.1', format: ['json'],
+    implementation: { description: name, url: base },
+    rest: [{ mode: 'server',
+      security: { service: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/restful-security-service', code: 'SMART-on-FHIR' }] }],
+        extension: [{ url: 'http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris', extension: [{ url: 'token', valueUri: base + '/oauth2/token' }, { url: 'authorize', valueUri: base + '/oauth2/authorize' }] }] },
+      resource: [
+        { type: 'DocumentReference', interaction: [{ code: 'create' }, { code: 'read' }, { code: 'search-type' }], supportedProfile: ['http://hl7.org/fhir/us/core/StructureDefinition/us-core-documentreference'] },
+        { type: 'Appointment', interaction: [{ code: 'read' }, { code: 'search-type' }] },
+        { type: 'Patient', interaction: [{ code: 'read' }, { code: 'search-type' }] } ],
+      operation: supportsOperation ? [{ name: 'receive-shl', definition: 'https://mydigirecords.com/fhir/OperationDefinition/receive-shl' }] : [] }] };
+  const issuedTokens = new Map();
+  async function fetchJwks(iss) {           // in the demo, apps publish their JWKS in-memory at {iss}/.well-known/jwks.json
+    const app = trustedApps.get(iss); return app ? app.jwks : null;
+  }
+  async function resolveShlink(uri, passcode, recipient, appServer) {
+    const p = parseShlink(uri);
+    if (p.exp && p.exp < Math.floor(Date.now() / 1000)) throw new Error('SHLink expired');
+    const id = p.url.split('/shl/')[1];
+    const keyBytes = b64uDecode(p.key);
+    let jwe;
+    if ((p.flag || '').includes('P')) {
+      const r = await appServer.manifest(id, { recipient, passcode, embeddedLengthMax: 1048576 });
+      if (r.status === 401) throw new Error('passcode rejected, remainingAttempts=' + r.body.remainingAttempts);
+      if (r.status !== 200) throw new Error('manifest HTTP ' + r.status);
+      jwe = r.body.files[0].embedded;
+    } else {
+      const r = appServer.directGet(id, recipient);
+      if (r.status !== 200) throw new Error('GET HTTP ' + r.status);
+      jwe = r.body;
+    }
+    const { payload } = await decryptJwe(jwe, keyBytes);
+    return payload;
+  }
+  async function verifyAttestation(bundle) {
+    const ext = ((bundle.meta || {}).extension || []).find(e => e.url === ATTESTATION_EXT);
+    if (!ext) return { present: false, ok: false, label: 'no attestation (processing continues)' };
+    const [, p] = ext.valueString.split('.');
+    const claims = JSON.parse(td.decode(b64uDecode(p)));
+    if (!trustedApps.has(claims.iss)) return { present: true, ok: false, label: 'issuer not in trust framework app list (processing continues)', claims };
+    const jwks = await fetchJwks(claims.iss);
+    const v = await verifyJwt(ext.valueString, jwks);
+    return { present: true, ok: v.ok, label: v.ok ? 'recognized app: ' + claims.iss : 'signature failed (processing continues)', claims, header: v.header };
+  }
+  function matchPatient(pt) {
+    const dob = pt.birthDate, fam = pt.name[0].family.toLowerCase(), giv = pt.name[0].given[0].toLowerCase();
+    const hit = mpi.find(m => m.birthDate === dob && m.family.toLowerCase() === fam && m.given.toLowerCase() === giv);
+    return hit ? { matched: true, mrn: hit.mrn, score: 'exact on name + DOB' } : { matched: false };
+  }
+  function checkIal(bundle) {
+    const prov = bundle.entry.map(e => e.resource).find(r => r.resourceType === 'Provenance' && r.target.some(t => t.reference === PATIENT_ID));
+    if (!prov) return { present: false };
+    const agent = prov.agent.find(a => (a.extension || []).some(x => x.url === IAL_EXT));
+    if (!agent) return { present: true, ial: null };
+    const ext = agent.extension.find(x => x.url === IAL_EXT);
+    const get = n => (ext.extension.find(x => x.url === n) || {});
+    return { present: true, ial: get('level').valueCode, csp: get('credentialServiceProvider').valueString, verifiedAt: get('verifiedAt').valueDateTime };
+  }
+  async function file(bundle, ctx) {
+    const resources = bundle.entry.map(e => e.resource);
+    const att = await verifyAttestation(bundle);
+    const pt = resources.find(r => r.resourceType === 'Patient');
+    const match = matchPatient(pt);
+    const ial = checkIal(bundle);
+    const appt = ctx.appointmentId ? appointments.find(a => a.id === ctx.appointmentId) : null;
+    const filed = { mustPersist: [], shouldPersist: [], intake: [], documents: [], ignored: [] };
+    for (const r of resources) {
+      if (r.resourceType === 'Patient' || r.resourceType === 'Provenance') continue;
+      if (['Condition', 'MedicationRequest', 'AllergyIntolerance', 'Immunization'].includes(r.resourceType)) { filed.mustPersist.push(r); chart.reconciliation.push({ resource: r, status: 'pending clinician review', source: 'patient-shared' }); }
+      else if (r.resourceType === 'QuestionnaireResponse') { filed.intake.push(r); chart.intake.push({ resource: r, encounter: appt ? appt.encounterId : null }); }
+      else if (r.resourceType === 'DocumentReference') { filed.documents.push(r); chart.documents.push({ resource: r, encounter: appt ? appt.encounterId : null }); }
+      else { filed.shouldPersist.push(r); chart.reconciliation.push({ resource: r, status: 'pending clinician review', source: 'patient-shared' }); }
+    }
+    chart.provenanceFlags.push({ at: nowIso(), attestation: att.label, identity: ial.ial ? ial.ial + ' via ' + ial.csp : 'none asserted', match, encounter: appt ? appt.encounterId : 'unbound (walk-in queue)' });
+    return { attestation: att, match, ial, appointment: appt, filed };
+  }
+  return {
+    name, base, capability, chart,
+    async token(form, appJwksByClientId) {
+      // SMART Backend Services: grant_type=client_credentials + JWT client assertion (RFC 7523), verified against the client's registered JWKS
+      if (form.grant_type !== 'client_credentials') return { status: 400, body: { error: 'unsupported_grant_type' } };
+      if (form.client_assertion_type !== 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer') return { status: 400, body: { error: 'invalid_client' } };
+      const [, p] = form.client_assertion.split('.');
+      const claims = JSON.parse(td.decode(b64uDecode(p)));
+      const reg = clientRegistry.get(claims.iss);
+      if (!reg || claims.sub !== claims.iss) return { status: 401, body: { error: 'invalid_client', error_description: 'unknown client_id' } };
+      if (claims.aud !== base + '/oauth2/token') return { status: 401, body: { error: 'invalid_client', error_description: 'aud must be the token endpoint' } };
+      if (claims.exp > Math.floor(Date.now() / 1000) + 300) return { status: 401, body: { error: 'invalid_client', error_description: 'exp more than 5 minutes ahead' } };
+      const v = await verifyJwt(form.client_assertion, reg.jwks);
+      if (!v.ok) return { status: 401, body: { error: 'invalid_client', error_description: v.reason } };
+      const requested = form.scope.split(' ');
+      const granted = requested.filter(s => reg.scopes.includes(s));
+      if (!granted.length) return { status: 400, body: { error: 'invalid_scope' } };
+      const token = 'ehr_' + b64u(randomBytes(24));
+      issuedTokens.set(token, { client: claims.iss, scopes: granted, exp: Date.now() + 300000 });
+      return { status: 200, body: { access_token: token, token_type: 'bearer', expires_in: 300, scope: granted.join(' ') } };
+    },
+    authorize(bearer, needScope) {
+      const t = issuedTokens.get(bearer);
+      if (!t || t.exp < Date.now()) return { ok: false, status: 401 };
+      if (!t.scopes.includes(needScope)) return { ok: false, status: 403 };
+      return { ok: true };
+    },
+    // Proposed operation (MDR proposal): POST [base]/$receive-shl with Parameters {shlink, passcode?, appointment?}
+    async receiveShl(bearer, params, appServer) {
+      const auth = this.authorize(bearer, 'system/DocumentReference.c');
+      if (!auth.ok) return { status: auth.status, body: outcome('error', auth.status === 401 ? 'login' : 'forbidden', 'token rejected') };
+      const get = n => (params.parameter.find(p => p.name === n) || {});
+      try {
+        const bundle = await resolveShlink(get('shlink').valueString, get('passcode').valueString, name, appServer);
+        const result = await file(bundle, { appointmentId: get('appointment').valueString });
+        return { status: 200, body: outcome('information', 'informational', 'Pre-check-in received and filed: ' + result.filed.mustPersist.length + ' resources to reconciliation, ' + result.filed.intake.length + ' intake form(s), ' + result.filed.documents.length + ' document(s)'), result };
+      } catch (e) { return { status: 422, body: outcome('error', 'processing', e.message) }; }
+    },
+    // Standards-only path: POST [base]/DocumentReference whose attachment.url is the shlink. Only works for links without a passcode.
+    async createDocumentReference(bearer, docRef, appServer) {
+      const auth = this.authorize(bearer, 'system/DocumentReference.c');
+      if (!auth.ok) return { status: auth.status, body: outcome('error', 'login', 'token rejected') };
+      try {
+        const url = docRef.content[0].attachment.url;
+        const p = parseShlink(url);
+        if ((p.flag || '').includes('P')) throw new Error('DocumentReference has no field for a passcode; use the operation or a link without P');
+        const apptId = (docRef.context && docRef.context.related && docRef.context.related[0] && docRef.context.related[0].reference || '').split('/')[1];
+        const bundle = await resolveShlink(url, undefined, name, appServer);
+        const result = await file(bundle, { appointmentId: apptId });
+        return { status: 201, headers: { location: base + '/DocumentReference/' + uuid() }, body: outcome('information', 'informational', 'DocumentReference created; linked bundle fetched and filed'), result };
+      } catch (e) { return { status: 422, body: outcome('error', 'processing', e.message) }; }
+    },
+    async scanQr(uri, appServer) {       // desk scan: KTC primary workflow
+      try { const bundle = await resolveShlink(uri, undefined, name, appServer); const result = await file(bundle, {}); return { ok: true, result, bundle }; }
+      catch (e) { return { ok: false, error: e.message }; }
+    }
+  };
+}
+function outcome(severity, code, text) { return { resourceType: 'OperationOutcome', issue: [{ severity, code, diagnostics: text }] }; }
+
+// ---------- App side: SMART Backend Services client assertion, capability gate, route choice ----------
+async function clientAssertion(clientKey, clientId, tokenEndpoint) {
+  const now = Math.floor(Date.now() / 1000);
+  return signJwt({ iss: clientId, sub: clientId, aud: tokenEndpoint, exp: now + 300, jti: uuid() }, clientKey, { typ: 'JWT' });
+}
+function capabilityGate(cap) {
+  const rest = cap.rest[0];
+  const tokenExt = (((rest.security || {}).extension || []).find(e => e.url === 'http://fhir-registry.smarthealthit.org/StructureDefinition/oauth-uris') || { extension: [] }).extension;
+  const token = (tokenExt.find(e => e.url === 'token') || {}).valueUri;
+  const docRef = rest.resource.find(r => r.type === 'DocumentReference');
+  const canCreateDocRef = Boolean(docRef && docRef.interaction.some(i => i.code === 'create'));
+  const hasOp = (rest.operation || []).some(o => o.name === 'receive-shl');
+  return { tokenEndpoint: token, canCreateDocRef, hasReceiveShl: hasOp, inboundSupported: Boolean(token) && (canCreateDocRef || hasOp) };
+}
+function chooseRoute({ connected, gate, pin }) {
+  if (!connected) return { route: 'qr', reason: 'no EHR integration for this practice' };
+  if (!gate.inboundSupported) return { route: 'qr', reason: 'EHR advertises no inbound path' };
+  if (pin && !gate.hasReceiveShl) return { route: 'qr', reason: 'PIN set but EHR has no $receive-shl; DocumentReference cannot carry a passcode' };
+  return { route: 'ehr', reason: gate.hasReceiveShl ? '$receive-shl advertised' : 'DocumentReference create advertised' };
+}
+
+// ---------- Device calendar (stand-in): visits the patient put in the phone calendar ----------
+const DEVICE_CALENDAR = [
+  { title: 'Dr. Okafor, annual physical', start: '2026-11-18T09:30:00-06:00', location: 'Prairie Ridge Family Medicine, 11200 Nall Ave, Leawood KS', notes: '' },
+  { title: 'Dentist, cleaning', start: '2026-11-21T14:00:00-06:00', location: 'Mission Hills Dental, Overland Park KS', notes: '' },
+  { title: 'Soccer, Kai', start: '2026-11-15T10:00:00-06:00', location: 'Swope Park', notes: '' }
+];
+function scanDeviceCalendar(events, lookaheadDays = 30) {
+  const kw = /(dr\.?|doctor|dentist|dental|clinic|physical|exam|appointment|appt|ortho|eye|optom|ophthalm)/i;
+  const now = Date.now(), horizon = now + lookaheadDays * 86400000;
+  return events.filter(e => { const t = Date.parse(e.start); return t > now && t < horizon && (kw.test(e.title) || kw.test(e.location)); })
+    .map(e => ({ ...e, guess: /dent/i.test(e.title + e.location) ? 'dental' : /ortho/i.test(e.title) ? 'ortho' : /eye|optom|ophthalm/i.test(e.title) ? 'eye' : 'primary', confidence: 'from calendar title; patient confirms' }));
+}
+
+root.PCI = { b64u, b64uDecode, b64uJson, randomBytes, uuid, nowIso, JWE_HEADER, JWE_HEADER_B64, encryptJwe, decryptJwe, generateSigningKey, signJwt, verifyJwt, buildShlink, parseShlink, textPdf,
+  patient, PATIENT_ID, RECORDS, VISITS, recommend, QUESTIONNAIRES, buildQuestionnaire, buildQuestionnaireResponse, buildProvenance, IAL_EXT, buildPdfDocRef, ATTESTATION_EXT, buildAttestation, buildBundle, renderLines,
+  createAppServer, createEhr, clientAssertion, capabilityGate, chooseRoute, DEVICE_CALENDAR, scanDeviceCalendar, sha256 };
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+</script>
+<script>
+(async function () {
+const P = window.PCI; const $ = s => document.querySelector(s);
+const state = { idv: null, visit: null, answers: {}, selected: null, policy: null, built: null, hosted: {}, app: P.createAppServer('https://mydigirecords.com'), appKey: null, clientKey: null, ehr: null, token: null, gate: null };
+const APP_ISS = 'https://mydigirecords.com', CLIENT_ID = 'mdr-precheckin';
+state.appKey = await P.generateSigningKey('ES256');
+state.clientKey = await P.generateSigningKey('ES384');
+
+// ----- helpers -----
+function hl(obj) { const s = typeof obj === 'string' ? obj : JSON.stringify(obj, null, 2); return s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+  .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)/g, m => /:$/.test(m) ? '<span class="k">' + m + '</span>' : '<span class="s">' + m + '</span>')
+  .replace(/\/\/[^\n]*/g, m => '<span class="cm">' + m + '</span>'); }
+function show(id, obj) { $(id).innerHTML = hl(obj); }
+function unlock(n) { const s = $('#s' + n); s.classList.remove('locked'); renderNav(n); setTimeout(() => s.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }
+const NAV = ['Identity', 'Visit', 'Intake', 'Records', 'Access', 'Package', 'Pass', 'EHR push'];
+function renderNav(cur) { $('#stepnav').innerHTML = NAV.map((t, i) => '<li class="' + (i + 1 < cur ? 'done' : i + 1 === cur ? 'current' : '') + '">' + (i + 1) + '. ' + t + '</li>').join(''); }
+renderNav(1);
+// show-the-code: pull named functions out of the inlined core source
+const SRC = $('#core-src').textContent;
+function codeOf(name) {
+  const re = new RegExp('(^|\\n)(\\s*)((async )?function ' + name + '\\b|' + name + '\\s*[:(]|async ' + name + '\\()', 'm');
+  const m = re.exec(SRC); if (!m) return '// ' + name + ' not found';
+  let i = m.index + m[1].length; let depth = 0, started = false, j = i;
+  for (; j < SRC.length; j++) { const ch = SRC[j]; if (ch === '{') { depth++; started = true; } else if (ch === '}') { depth--; if (started && depth === 0) { j++; break; } } }
+  return SRC.slice(i, j).trim();
+}
+function idvRecord() { return { ial: 'IAL2', csp: 'ID.me', verifiedAt: P.nowIso(), subject: 'ID.me pairwise subject id', attributes: ['name', 'birthDate', 'address'], reusedFor: 'every pre-check-in until re-verification' }; }
+document.querySelectorAll('pre[data-code]').forEach(pre => { pre.innerHTML = hl(pre.dataset.code.split(',').map(n => n === 'idvRecord' ? idvRecord.toString() : codeOf(n)).join('\n\n')); });
+
+// ----- step 1 -----
+$('#btn-idv').onclick = () => { state.idv = idvRecord(); $('#idv-status').innerHTML = '<span class="ok-ic">✓</span> IAL2 via ID.me, ' + state.idv.verifiedAt.slice(0, 10); show('#art-idv', state.idv); $('#btn-idv').disabled = true; unlock(2); };
+
+// ----- step 2 -----
+const EHR_APPTS = { id: 'appt-1', encounterId: 'enc-77', start: '2026-11-18T09:30:00-06:00', practice: 'Prairie Ridge Family Medicine', visitKey: 'primary' };
+function apptResource(vendor) { return { resourceType: 'Appointment', id: EHR_APPTS.id, status: 'booked',
+  serviceType: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/service-type', code: '124', display: 'General Practice' }] }],
+  appointmentType: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0276', code: 'CHECKUP', display: 'A routine check-up, such as an annual physical' }] },
+  start: EHR_APPTS.start, end: '2026-11-18T10:00:00-06:00', minutesDuration: 30,
+  participant: [{ actor: { reference: 'Patient/E00412', display: 'Jordan Alvarez' }, status: 'accepted' }, { actor: { display: 'Dr. R. Okafor' }, status: 'accepted' }, { actor: { display: EHR_APPTS.practice + ' (' + vendor + ')' }, status: 'accepted' }] }; }
+document.querySelectorAll('#visit-mode input').forEach(r => r.onchange = () => { document.querySelectorAll('#visit-mode label').forEach(l => l.classList.toggle('on', l.querySelector('input').checked));
+  const c = r.value === 'connected'; $('#vm-connected').style.display = c ? '' : 'none'; $('#vm-calendar').style.display = c ? 'none' : ''; });
+function setVisit(v, art, title) { state.visit = v; $('#art-visit-title').textContent = title; show('#art-visit', art);
+  const s = $('#visit-summary'); s.style.display = ''; s.innerHTML = '<b>Visit:</b> ' + v.practice + ', ' + new Date(v.start).toLocaleString() + ' · <b>type:</b> ' + P.VISITS[v.visitKey].label + ' · <b>EHR appointment id:</b> ' + (v.ehrAppointmentId || 'none (QR route, or push without encounter binding)') + ' · <b>integration:</b> ' + (v.connected ? v.vendor : 'none');
+  buildIntake(); unlock(3); }
+$('#btn-fetch-appt').onclick = () => { const vendor = $('#ehr-pick').value; const a = apptResource(vendor);
+  $('#appt-list').innerHTML = '<div class="choice" style="margin-top:10px"><label class="on"><input type="radio" checked><span><b>' + EHR_APPTS.practice + '</b><small>' + new Date(a.start).toLocaleString() + ' · Dr. R. Okafor · ' + vendor + '</small></span></label></div><div class="btn-row"><button class="primary" id="btn-use-appt">Pre-check-in for this visit</button></div>';
+  show('#art-visit', { request: 'GET [' + vendor + ' base]/Appointment?patient=E00412&date=ge2026-11-11&status=booked', response: a });
+  $('#btn-use-appt').onclick = () => setVisit({ ...EHR_APPTS, connected: true, vendor, ehrAppointmentId: a.id }, { request: 'GET [' + vendor + ' base]/Appointment?patient=E00412&date=ge2026-11-11&status=booked', response: a }, 'FHIR Appointment (read from the EHR)'); };
+$('#btn-scan-cal').onclick = () => { const soon = P.DEVICE_CALENDAR.map((e, i) => ({ ...e, start: new Date(Date.now() + (i + 2) * 86400000).toISOString() }));
+  const found = P.scanDeviceCalendar(soon);
+  $('#cal-list').innerHTML = '<div class="choice" style="margin-top:10px">' + found.map((f, i) => '<label><input type="radio" name="cal" value="' + i + '"><span><b>' + f.title + '</b><small>' + new Date(f.start).toLocaleString() + ' · ' + f.location + '<br>Looks like: ' + P.VISITS[f.guess].label + '</small></span></label>').join('') + '</div><div class="btn-row"><button class="primary" id="btn-use-cal">Confirm this visit</button></div>';
+  show('#art-visit', { read: 'device calendar, next 30 days, ' + soon.length + ' events', matched: found, skipped: soon.filter(e => !found.some(f => f.title === e.title)).map(e => e.title) });
+  $('#btn-use-cal').onclick = () => { const i = Number((document.querySelector('input[name=cal]:checked') || {}).value); if (isNaN(i)) { $('#cal-list').insertAdjacentHTML('beforeend', '<div class="note">Pick one of the visits first.</div>'); return; } const f = found[i];
+    setVisit({ practice: f.location.split(',')[0], start: f.start, visitKey: f.guess, connected: false }, { source: 'phone calendar', event: f, note: 'No EHR appointment id. The QR route needs none. The push route would file into a walk-in queue.' }, 'Visit confirmed from the phone calendar'); }; };
+$('#btn-manual').onclick = () => { const name = $('#man-practice').value || 'Practice entered by patient'; const v = { practice: name, start: $('#man-date').value + 'T09:00:00', visitKey: $('#man-type').value, connected: false };
+  setVisit(v, { source: 'manual entry', visit: v }, 'Visit entered by the patient'); };
+
+// ----- step 3 -----
+function buildIntake() { const q = P.buildQuestionnaire(state.visit.visitKey); const items = P.QUESTIONNAIRES[state.visit.visitKey].items; state.answers = {};
+  $('#intake-form').innerHTML = '<div class="small" style="margin-bottom:8px">Form: <code>' + q.url + '|' + q.version + '</code></div>' + items.map(i => { const id = 'q-' + i.linkId; let ctl;
+    if (i.type === 'boolean') ctl = '<select id="' + id + '"><option value="true"' + (i.answer ? ' selected' : '') + '>Yes</option><option value="false"' + (!i.answer ? ' selected' : '') + '>No</option></select>';
+    else if (i.type === 'integer') ctl = '<input type="number" id="' + id + '" min="0" max="10" value="' + i.answer + '">';
+    else if (i.type === 'date') ctl = '<input type="date" id="' + id + '" value="' + i.answer + '">';
+    else if (i.type === 'choice') ctl = '<select id="' + id + '">' + ['Not at all', 'Several days', 'More than half the days', 'Nearly every day'].map(o => '<option' + (o === i.answer ? ' selected' : '') + '>' + o + '</option>').join('') + '</select>';
+    else ctl = '<input type="text" id="' + id + '" value="' + i.answer.replace(/"/g, '&quot;') + '">';
+    return '<div class="q"><label for="' + id + '">' + i.text + '</label>' + ctl + '</div>'; }).join('');
+  const refresh = () => { items.forEach(i => { const el = $('#q-' + i.linkId); let v = el.value; if (i.type === 'boolean') v = v === 'true'; else if (i.type === 'integer') v = Number(v); state.answers[i.linkId] = v; }); show('#art-qr', P.buildQuestionnaireResponse(state.visit.visitKey, state.answers)); };
+  $('#intake-form').oninput = refresh; refresh(); }
+$('#btn-intake-done').onclick = () => { buildRecTable(); unlock(4); };
+
+// ----- step 4 -----
+function buildRecTable() { const rec = P.recommend(state.visit.visitKey); state.selected = rec.filter(r => r.suggested).map(r => r.key);
+  $('#rec-table').innerHTML = '<table><tr><th></th><th>Record set</th><th>Why for ' + P.VISITS[state.visit.visitKey].label + '</th><th>Profile · receiver duty (KTC)</th></tr>' + rec.map(r => '<tr><td><input type="checkbox" data-k="' + r.key + '"' + (r.suggested ? ' checked' : '') + '></td><td><b>' + r.label + '</b><div class="small">' + P.RECORDS[r.key].resources.length + ' resource(s)</div></td><td>' + r.reason + '</td><td>' + r.profile + '<span class="tag ' + (r.ktc.startsWith('SHALL') ? 'must' : 'should') + '">' + r.ktc + '</span></td></tr>').join('') + '</table>';
+  $('#rec-table').onchange = () => { state.selected = [...document.querySelectorAll('#rec-table input:checked')].map(i => i.dataset.k); }; }
+$('#btn-rec-done').onclick = () => { renderPolicy(); unlock(5); };
+
+// ----- step 5 -----
+function renderPolicy() { const pin = $('#pin-on').checked, pinv = $('#pin').value; $('#pin').disabled = !pin;
+  state.policy = { qr: { flag: 'U', expSeconds: Number($('#exp-qr').value), passcode: null, why: 'KTC guide: Patient Apps SHALL generate SHLinks with the U flag; SHL STU1: U SHALL NOT be used with P' },
+    api: { flag: pin ? 'P' : 'U', expSeconds: Number($('#exp-api').value), passcode: pin ? pinv : null, why: pin ? 'Base SHL manifest flow; passcode delivered inside the authenticated API call' : 'No PIN, so the direct-file link is reused; DocumentReference path becomes possible' } };
+  show('#art-policy', state.policy);
+  $('#pin-note').innerHTML = pin ? '<b>With a PIN</b> the push link uses flag <code>P</code> and the EHR must POST to the manifest with <code>recipient</code> and <code>passcode</code>. Three wrong attempts and the link is disabled (401 with <code>remainingAttempts</code>). This also means the EHR must support the proposed <code>$receive-shl</code> operation, because a DocumentReference has nowhere to put a passcode.'
+    : '<b>Without a PIN</b> the push link uses flag <code>U</code> like the QR pass, and the standards-only DocumentReference path works. The link is still protected by the key inside it and by TLS on the API call.'; }
+['#exp-qr', '#exp-api', '#pin-on', '#pin'].forEach(s => $(s).oninput = renderPolicy);
+$('#btn-policy-done').onclick = () => { renderPolicy(); unlock(6); };
+
+// ----- step 6 -----
+$('#btn-build').onclick = async () => { const b = $('#btn-build'); b.disabled = true; $('#build-status').textContent = 'building…';
+  const built = await P.buildBundle({ selected: state.selected, visitKey: state.visit.visitKey, answers: state.answers, idv: state.idv, appKey: state.appKey, appIss: APP_ISS });
+  state.built = built; const now = Math.floor(Date.now() / 1000);
+  const label = 'Pre-visit, ' + state.visit.practice.slice(0, 50);
+  state.hosted.qr = await state.app.host(built.bundle, { flag: 'U', exp: now + state.policy.qr.expSeconds, label });
+  state.hosted.api = await state.app.host(built.bundle, { flag: state.policy.api.flag, exp: now + state.policy.api.expSeconds, label, passcode: state.policy.api.passcode });
+  const types = built.bundle.entry.reduce((m, e) => (m[e.resource.resourceType] = (m[e.resource.resourceType] || 0) + 1, m), {});
+  $('#bundle-count').textContent = '(' + built.bundle.entry.length + ' entries: ' + Object.entries(types).map(([k, v]) => k + ' ' + v).join(', ') + ')';
+  const view = JSON.parse(JSON.stringify(built.bundle)); for (const e of view.entry) if (e.resource.resourceType === 'DocumentReference') e.resource.content[0].attachment.data = e.resource.content[0].attachment.data.slice(0, 40) + '… (' + built.pdf.length + ' bytes of PDF, base64)';
+  view.meta.extension[0].valueString = view.meta.extension[0].valueString.slice(0, 48) + '…';
+  show('#art-bundle', view);
+  const [h, p] = built.attestation.split('.'); show('#art-att', { header: JSON.parse(atob(h.replace(/-/g, '+').replace(/_/g, '/'))), claims: JSON.parse(atob(p.replace(/-/g, '+').replace(/_/g, '/'))), jwksAt: APP_ISS + '/.well-known/jwks.json', publicKey: state.appKey.publicJwk, note: 'Exactly three claims are defined by the guide: iss, iat, jti. No exp.' });
+  show('#art-prov', built.bundle.entry.map(e => e.resource).find(r => r.resourceType === 'Provenance'));
+  show('#art-jwe', state.hosted.qr.jwe.slice(0, 600) + '… (' + state.hosted.qr.jwe.length + ' chars)\n\n// protected header, decoded:\n' + JSON.stringify(P.JWE_HEADER) + '\n// hosted at: ' + state.hosted.qr.link.payload.url + '\n// GET with ?recipient=…  returns content-type application/jose');
+  show('#art-shl', { qrPass: state.hosted.qr.link.payload, qrUri: state.hosted.qr.link.uri.slice(0, 60) + '…', ehrPush: state.hosted.api.link.payload, ehrUri: state.hosted.api.link.uri.slice(0, 60) + '…' });
+  $('#build-status').innerHTML = '<span class="ok-ic">✓</span> bundle built, attestation signed, two links hosted'; unlock(7); startQr(); };
+
+// ----- step 7 -----
+let qrTimer;
+function startQr() { const uri = state.hosted.qr.link.uri; const c = $('#qr');
+  if (window.QRCode) QRCode.toCanvas(c, uri, { width: 260, margin: 1, errorCorrectionLevel: 'L' }, () => {}); else c.getContext && (c.width = 260, c.height = 260);
+  clearInterval(qrTimer); const end = state.hosted.qr.link.payload.exp * 1000;
+  const tick = () => { const s = Math.max(0, Math.floor((end - Date.now()) / 1000)); $('#qr-count').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); if (s <= 0) { clearInterval(qrTimer); state.app.revoke(state.hosted.qr.id); } }; tick(); qrTimer = setInterval(tick, 1000); }
+$('#btn-copy').onclick = () => { try { navigator.clipboard.writeText(state.hosted.qr.link.uri).then(() => $('#btn-copy').textContent = 'Copied', () => $('#btn-copy').textContent = 'Copy blocked here'); } catch (e) { $('#btn-copy').textContent = 'Copy blocked here'; } };
+$('#btn-pdf').onclick = async () => { let saved = false;
+  try { const dl = (window.claude && window.claude.use) ? await window.claude.use('downloads') : null;
+    if (dl) { try { await dl.save({ filename: 'pre-visit-summary.pdf', data: new Blob([state.built.pdf]) }); saved = true; } catch (e) { saved = e && e.code === 'declined' ? 'declined' : false; } }
+    else { const blob = new Blob([state.built.pdf], { type: 'application/pdf' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'pre-visit-summary.pdf'; document.body.appendChild(a); a.click(); a.remove(); saved = true; } } catch (e) {}
+  const lines = P.renderLines(state.selected, state.built.questionnaireResponse); $('#pdf-preview').style.display = ''; $('#pdf-preview').innerHTML = '<h4>What the PDF contains (' + state.built.pdf.length + ' bytes, the same file carried inside the bundle as LOINC 60591-5)</h4><pre class="art" style="max-height:260px">' + lines.map(l => l.replace(/</g, '&lt;')).join('\n') + '</pre><p class="small">' + (saved === true ? 'Saved to your device.' : saved === 'declined' ? 'Save declined.' : 'Download is not available in this view; it works when the page is hosted on MDR\'s own domain.') + '</p>'; };
+function makeEhr(nm) { return P.createEhr({ name: nm, base: 'https://fhir.' + nm.toLowerCase().replace(/[^a-z]/g, '') + '.example/r4',
+  clientRegistry: new Map([[CLIENT_ID, { jwks: { keys: [state.clientKey.publicJwk] }, scopes: ['system/DocumentReference.c', 'system/Appointment.rs'] }]]),
+  trustedApps: new Map([[APP_ISS, { jwks: { keys: [state.appKey.publicJwk] } }]]),
+  mpi: [{ mrn: 'E00412', family: 'Alvarez', given: 'Jordan', birthDate: '1979-03-14' }, { mrn: 'E00977', family: 'Alvarez', given: 'Jordan', birthDate: '1988-07-02' }],
+  appointments: [{ id: 'appt-1', encounterId: 'enc-77', start: '2026-11-18T09:30:00-06:00' }] }); }
+function filingView(r) { return { attestation: r.attestation.label, identityAssurance: r.ial.ial ? r.ial.ial + ' via ' + r.ial.csp + ' at ' + r.ial.verifiedAt + ' (from Provenance extension; EHR may ignore)' : 'none asserted', mpiMatch: r.match, encounter: r.appointment ? r.appointment.encounterId + ' (bound to appointment ' + r.appointment.id + ')' : 'none; filed to walk-in queue',
+  filed: { toReconciliationQueue_SHALL: r.filed.mustPersist.map(x => x.resourceType + ': ' + ((x.code && (x.code.text || x.code.coding[0].display)) || (x.medicationCodeableConcept || x.vaccineCode).coding[0].display)), toReconciliationQueue_SHOULD: r.filed.shouldPersist.map(x => x.resourceType + ': ' + ((x.code && x.code.coding[0].display) || x.payor[0].display)), intake: r.filed.intake.map(x => 'QuestionnaireResponse ' + x.questionnaire), documents: r.filed.documents.map(x => 'DocumentReference ' + x.type.coding[0].display) } }; }
+$('#btn-scan').onclick = async () => { const ehr = makeEhr(state.visit.practice); const uri = state.hosted.qr.link.uri; const p = P.parseShlink(uri);
+  const r = await ehr.scanQr(uri, state.app);
+  show('#art-scan', r.ok ? { scanned: uri.slice(0, 50) + '…', request: 'GET ' + p.url + '?recipient=' + encodeURIComponent(ehr.name), response: '200 application/jose, ' + state.hosted.qr.jwe.length + ' chars', decryptedWith: 'key from the link (' + p.key.slice(0, 8) + '…)', result: filingView(r.result) } : { error: r.error });
+  show('#art-audit', state.app.audit); unlock(8); };
+
+// ----- step 8 -----
+$('#btn-gate').onclick = async () => { const nm = state.visit.connected ? state.visit.vendor : state.visit.practice; state.ehr = makeEhr(nm);
+  const gate = P.capabilityGate(state.ehr.capability); state.gate = gate; const route = P.chooseRoute({ connected: state.visit.connected, gate, pin: Boolean(state.policy.api.passcode) });
+  const ca = await P.clientAssertion(state.clientKey, CLIENT_ID, gate.tokenEndpoint); const [h, p] = ca.split('.');
+  show('#art-gate', { capabilityStatementFrom: state.ehr.base + '/metadata', gate, routeDecision: route, clientAssertion: { header: JSON.parse(atob(h.replace(/-/g, '+').replace(/_/g, '/'))), claims: JSON.parse(atob(p.replace(/-/g, '+').replace(/_/g, '/'))), signedWith: 'ES384, kid ' + state.clientKey.publicJwk.kid + ', registered with the EHR at onboarding' } });
+  if (!state.visit.connected) { show('#art-token', { note: 'This visit was not read from an EHR integration, so the app would not push. Route: QR. The token exchange below runs anyway so you can see it.' }); }
+  const form = { grant_type: 'client_credentials', client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer', client_assertion: ca, scope: 'system/DocumentReference.c' };
+  const tok = await state.ehr.token(form); state.token = tok.body.access_token;
+  show('#art-token', { request: 'POST ' + gate.tokenEndpoint + '\ncontent-type: application/x-www-form-urlencoded', form: { ...form, client_assertion: ca.slice(0, 40) + '…' }, response: { status: tok.status, body: tok.body } }); };
+document.querySelectorAll('#dispatch-mode input').forEach(r => r.onchange = () => document.querySelectorAll('#dispatch-mode label').forEach(l => l.classList.toggle('on', l.querySelector('input').checked)));
+$('#btn-dispatch').onclick = async () => { if (!state.token) { show('#art-req', { note: 'Run 8.1 first to get a token.' }); return; } const mode = document.querySelector('input[name=dm]:checked').value; const link = state.hosted.api.link; const apptId = state.visit.ehrAppointmentId;
+  $('#status-tl').children[2].classList.add('on'); let res, req;
+  if (mode === 'op') { req = { resourceType: 'Parameters', parameter: [{ name: 'shlink', valueString: link.uri }, ...(state.policy.api.passcode ? [{ name: 'passcode', valueString: state.policy.api.passcode }] : []), ...(apptId ? [{ name: 'appointment', valueString: apptId }] : [])] };
+    res = await state.ehr.receiveShl(state.token, req, state.app); show('#art-req', { http: 'POST ' + state.ehr.base + '/$receive-shl\nauthorization: Bearer ' + state.token.slice(0, 12) + '…\ncontent-type: application/fhir+json', body: { ...req, parameter: req.parameter.map(x => x.name === 'shlink' ? { ...x, valueString: x.valueString.slice(0, 50) + '…' } : x) }, status: 'MDR proposal: OperationDefinition https://mydigirecords.com/fhir/OperationDefinition/receive-shl' }); }
+  else { req = { resourceType: 'DocumentReference', status: 'current', type: { coding: [{ system: 'http://loinc.org', code: '60591-5', display: 'Patient summary Document' }] }, category: [{ coding: [{ system: 'https://cms.gov/fhir/CodeSystem/patient-shared-category', code: 'patient-shared' }] }], subject: { reference: 'Patient/E00412' }, date: P.nowIso(), author: [{ display: 'Jordan Alvarez (patient), via MyDigiRecords' }],
+      content: [{ attachment: { contentType: 'application/fhir+json', url: link.uri, title: 'SMART Health Link to patient-shared pre-visit bundle' } }], ...(apptId ? { context: { related: [{ reference: 'Appointment/' + apptId }] } } : {}) };
+    res = await state.ehr.createDocumentReference(state.token, req, state.app); show('#art-req', { http: 'POST ' + state.ehr.base + '/DocumentReference\nauthorization: Bearer ' + state.token.slice(0, 12) + '…\ncontent-type: application/fhir+json', body: { ...req, content: [{ attachment: { ...req.content[0].attachment, url: link.uri.slice(0, 50) + '…' } }] }, status: 'Existing FHIR only. attachment.url carrying a shlink:/ URI is a convention, not a published profile.' }); }
+  show('#art-res', { status: res.status, headers: res.headers || {}, body: res.body });
+  if (res.result) { $('#status-tl').children[4].classList.add('on'); const p = P.parseShlink(link.uri);
+    show('#art-manifest', p.flag.includes('P') ? { step1: 'POST ' + p.url + '\ncontent-type: application/json', body: { recipient: state.ehr.name, passcode: '••••', embeddedLengthMax: 1048576 }, step2: 'manifest response', manifest: { status: 'finalized', files: [{ contentType: 'application/fhir+json', embedded: state.hosted.api.jwe.slice(0, 40) + '…' }] }, step3: 'decrypt embedded JWE with key from link → PatientSharedBundle' }
+      : { step1: 'GET ' + p.url + '?recipient=' + encodeURIComponent(state.ehr.name), response: '200 application/jose', step2: 'decrypt JWE with key from link → PatientSharedBundle' });
+    const fv = filingView(res.result); show('#art-verify', { attestation: fv.attestation, identityAssurance: fv.identityAssurance, mpiMatch: fv.mpiMatch, encounter: fv.encounter });
+    const ch = state.ehr.chart; $('#art-chart').innerHTML = '<table><tr><th>Destination</th><th>Items</th><th>Status</th></tr><tr><td>Intake documentation for the visit</td><td>' + ch.intake.map(i => 'QuestionnaireResponse (' + i.resource.item.length + ' answers)' + (i.encounter ? ', encounter ' + i.encounter : '')).join('<br>') + '</td><td>filed</td></tr><tr><td>Clinical reconciliation queue</td><td>' + ch.reconciliation.map(r => r.resource.resourceType).join(', ') + '</td><td>pending clinician one-click sign-off</td></tr><tr><td>Documents</td><td>' + ch.documents.map(d => d.resource.type.coding[0].display + ' (PDF)').join('<br>') + '</td><td>filed, patient-shared provenance shown</td></tr></table>';
+  } else { show('#art-manifest', { note: 'EHR rejected the request; see OperationOutcome' }); show('#art-verify', {}); $('#art-chart').innerHTML = ''; }
+  show('#art-audit', state.app.audit); };
+})();
+</script>
+</body>
+</html>

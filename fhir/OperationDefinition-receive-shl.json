@@ -1,0 +1,25 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "receive-shl",
+  "url": "https://mydigirecords.com/fhir/OperationDefinition/receive-shl",
+  "version": "0.1.0-draft",
+  "name": "ReceiveSHL",
+  "title": "Receive a patient-shared SMART Health Link ahead of a visit",
+  "status": "draft",
+  "experimental": true,
+  "date": "2026-11-11",
+  "publisher": "MyDigiRecords, Inc.",
+  "description": "Proposed for discussion in the CMS Health Technology Ecosystem Kill the Clipboard check-in group. Lets a patient-facing app hand a SMART Health Link to an EHR through an authenticated API call, with the passcode and the appointment the link belongs to. The EHR resolves and files the link immediately under the same rules as the Patient-Shared Health Documents via SMART Health Links guide (v0.10.2). Not part of any published implementation guide.",
+  "kind": "operation",
+  "code": "receive-shl",
+  "system": true,
+  "type": false,
+  "instance": false,
+  "parameter": [
+    { "name": "shlink", "use": "in", "min": 1, "max": "1", "type": "string", "documentation": "The shlink:/ URI, bare or viewer-prefixed." },
+    { "name": "passcode", "use": "in", "min": 0, "max": "1", "type": "string", "documentation": "Required when the link's flag contains P. Used by the EHR in its manifest request and never stored." },
+    { "name": "appointment", "use": "in", "min": 0, "max": "1", "type": "string", "documentation": "The EHR's own Appointment id, when the app read the visit from this EHR. Absent for a visit the patient entered by hand; the EHR then files to an unbound pre-visit queue." },
+    { "name": "patient", "use": "in", "min": 0, "max": "1", "type": "Reference", "documentation": "Optional Patient reference in the EHR, when the app holds one from the integration." },
+    { "name": "return", "use": "out", "min": 1, "max": "1", "type": "OperationOutcome", "documentation": "Information issue on success naming what was filed; error issue with code processing on a resolution, passcode, decryption or matching failure." }
+  ]
+}

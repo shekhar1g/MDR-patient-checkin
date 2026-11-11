@@ -1,0 +1,12 @@
+{
+  "name": "mdr-app-initiated-precheckin",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "App-initiated pre-check-in on SMART Health Links: runnable demo, protocol core, and tests",
+  "scripts": {
+    "build": "python3 build.py",
+    "test": "node test/core.test.mjs && node test/page.test.mjs"
+  },
+  "devDependencies": { "jose": "^6", "jsdom": "^31" }
+}
