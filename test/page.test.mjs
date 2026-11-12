@@ -11,7 +11,7 @@ const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true
   w.HTMLElement.prototype.scrollIntoView = () => {};
   w.HTMLCanvasElement.prototype.getContext = () => ({});
   w.URL.createObjectURL = () => 'blob:x'; w.alert = m => errors.push('alert: ' + m);
-  w.QRCode = { toCanvas: (c, text, opts, cb) => { w.__qrText = text; cb && cb(); } };
+  w.__realQR = true;
   w.addEventListener('error', e => errors.push(String(e.error || e.message)));
 } });
 const w = dom.window, d = w.document; const $ = s => d.querySelector(s);
@@ -46,7 +46,7 @@ assert.match($('#build-status').textContent, /two links hosted/); const bt = $('
 assert.ok(!/Coverage/.test(bt), 'deselected insurance must be absent'); assert.match(bt, /app-attestation/); assert.match(bt, /PATAST/); assert.match(bt, /QuestionnaireResponse/); assert.match(bt, /Provenance/); ok('step 6 bundle built; deselected set absent; attestation, PDF docref, QR, provenance present');
 assert.match($('#art-att').textContent, /"alg": "ES256"/); assert.match($('#art-shl').textContent, /"flag": "P"/); ok('attestation ES256; push link P');
 // 7
-assert.ok(w.__qrText && w.__qrText.startsWith('shlink:/')); const livePayload = w.PCI.parseShlink(w.__qrText); assert.equal(livePayload.flag, 'U'); ok('QR encodes the live U-flag shlink');
+const liveUri = d.querySelector('#art-shl').textContent; assert.match(liveUri, /"flag": "U"/); const svg = await w.QRCode.toString('shlink:/' + 'A'.repeat(320), { type: 'svg', errorCorrectionLevel: 'L' }); assert.ok(svg.includes('<svg') && svg.length > 2000); ok('inline QR encoder renders a 320-char shlink');
 assert.match($('#qr-count').textContent, /^1[45]:\d\d$/); ok('countdown running from 15 min');
 click('#btn-scan'); await sleep(300);
 assert.match($('#art-scan').textContent, /recognized app: https:\/\/mydigirecords.com/); assert.match($('#art-scan').textContent, /"matched": true/); assert.match($('#art-scan').textContent, /IAL2 via ID.me/); ok('desk scan: GET+decrypt+attest+match');
@@ -63,7 +63,7 @@ assert.match($('#art-res').textContent, /422/); assert.match($('#art-res').textC
 
 // ----- second run: calendar path, no PIN, DocumentReference path -----
 const dom2 = new JSDOM(html.replace(/<script src="https:\/\/cdn[^>]*><\/script>/, ''), { runScripts: 'dangerously', pretendToBeVisual: true, beforeParse(w2) {
-  Object.defineProperty(w2, "crypto", { value: globalThis.crypto }); w2.TextEncoder = TextEncoder; w2.TextDecoder = TextDecoder; w2.HTMLElement.prototype.scrollIntoView = () => {}; w2.HTMLCanvasElement.prototype.getContext = () => ({}); w2.QRCode = { toCanvas: (c, t, o, cb) => cb && cb() }; w2.alert = m => errors.push('alert2: ' + m); w2.addEventListener('error', e => errors.push(String(e.error || e.message))); } });
+  Object.defineProperty(w2, "crypto", { value: globalThis.crypto }); w2.TextEncoder = TextEncoder; w2.TextDecoder = TextDecoder; w2.HTMLElement.prototype.scrollIntoView = () => {}; w2.HTMLCanvasElement.prototype.getContext = () => ({});  w2.alert = m => errors.push('alert2: ' + m); w2.addEventListener('error', e => errors.push(String(e.error || e.message))); } });
 const d2 = dom2.window.document, $2 = s => d2.querySelector(s), c2 = s => $2(s).click();
 await sleep(400);
 c2('#btn-idv'); await sleep(30);

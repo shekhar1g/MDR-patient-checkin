@@ -7,7 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+<script>/* qrcode (node-qrcode, MIT) bundled inline so the page has no script dependency */
+/*QR_JS*/</script>
 <style>
 :root{--navy:#1F3A5F;--teal:#2A7F87;--teal-deep:#1F6068;--paper:#F6F8F9;--card:#fff;--line:#DCE4E8;--ink:#232E36;--ink-soft:#5B6A73;--amber:#9A6414;--amber-bg:#FBF3E2;--amber-line:#E6C989;--green:#2A6E49;--green-bg:#E7F3EC;--green-line:#AFD9C1;--red:#9A3131;--red-bg:#FBECEC;--blue-bg:#E8F0F8;--blue-line:#B9CFE6;--code-bg:#10202A;--code-ink:#DCEBEF;--code-key:#8FC4E8;--code-str:#E8C98B;--code-acc:#7FD8CB;--sans:'IBM Plex Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;--r:10px}
 @media (prefers-color-scheme:dark){:root{--navy:#9FC1E8;--teal:#63C2CB;--teal-deep:#8FDDE4;--paper:#131B20;--card:#1B252B;--line:#2C3940;--ink:#E7EEF1;--ink-soft:#9FB0B8;--amber:#E3B15E;--amber-bg:#2C2313;--amber-line:#513E1B;--green:#7FCBA0;--green-bg:#16281F;--green-line:#2C4E3A;--red:#E39898;--red-bg:#2C1717;--blue-bg:#17222E;--blue-line:#2C4258;--code-bg:#0A1318}}
@@ -416,7 +417,7 @@ $('#btn-build').onclick = async () => { const b = $('#btn-build'); b.disabled = 
 // ----- step 7 -----
 let qrTimer;
 function startQr() { const uri = state.hosted.qr.link.uri; const c = $('#qr');
-  if (window.QRCode) QRCode.toCanvas(c, uri, { width: 260, margin: 1, errorCorrectionLevel: 'L' }, () => {}); else c.getContext && (c.width = 260, c.height = 260);
+  QRCode.toCanvas(c, uri, { width: 260, margin: 1, errorCorrectionLevel: 'L' }, err => { if (err) { $('#qr-count').parentElement.insertAdjacentHTML('beforeend', '<div class="small">QR could not render: ' + err.message + '</div>'); } });
   clearInterval(qrTimer); const end = state.hosted.qr.link.payload.exp * 1000;
   const tick = () => { const s = Math.max(0, Math.floor((end - Date.now()) / 1000)); $('#qr-count').textContent = String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); if (s <= 0) { clearInterval(qrTimer); state.app.revoke(state.hosted.qr.id); } }; tick(); qrTimer = setInterval(tick, 1000); }
 $('#btn-copy').onclick = () => { try { navigator.clipboard.writeText(state.hosted.qr.link.uri).then(() => $('#btn-copy').textContent = 'Copied', () => $('#btn-copy').textContent = 'Copy blocked here'); } catch (e) { $('#btn-copy').textContent = 'Copy blocked here'; } };

@@ -42,9 +42,9 @@ npm test
 
 ## Layout
 
-- `index.html`: the built page. Self-contained apart from the QR library on jsDelivr and Google Fonts.
+- `index.html`: the built page. Self-contained apart from Google Fonts.
 - `core.js`: the protocol core. Runs in the browser and in Node. Everything the page shows under "Show the code" is pulled from this file.
-- `src-page.html` and `build.py`: the page template and the one-step build that inlines `core.js` into it. Edit these, then `npm run build`.
+- `src-page.html`, `qrcode.bundle.js` and `build.py`: the page template, the QR encoder (node-qrcode, MIT, bundled with esbuild) and the one-step build that inlines both `core.js` and the encoder into the page. Edit these, then `npm run build`.
 - `fhir/`: draft OperationDefinition.
 - `test/`: the two test files.
 
