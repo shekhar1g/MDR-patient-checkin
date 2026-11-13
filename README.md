@@ -50,6 +50,5 @@ npm test
 
 ## Hosting on GitHub Pages
 
-Settings, Pages, Source "Deploy from a branch", branch `main`, folder `/ (root)`. For a custom hostname add a `CNAME` file with the hostname and a DNS CNAME record pointing it at `<org>.github.io`.
 
 Fictional patient and practices throughout. No data leaves the browser.
